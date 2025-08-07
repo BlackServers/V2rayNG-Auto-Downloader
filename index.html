@@ -1,274 +1,186 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
-
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>دانلود آخرین نسخه v2rayNG</title>
-  <!-- فونت Vazirmatn -->
-  <link
-    rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap"
-  />
-  <!-- فونت آیکون Font Awesome -->
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-  />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>دانلود اپلیکیشن</title>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn&display=swap" rel="stylesheet" />
   <style>
-    /* استایل پایه */
-    :root {
-      --primary-color: #4f46e5;
-      --primary-hover: #4338ca;
-      --secondary-color: #f3f4f6;
-      --text-color: #fff;
-      --light-text: #a5acc7;
-      --success-color: #10b981;
-      --danger-color: #ef4444;
-      --border-radius: 12px;
-      --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.7),
-        0 4px 6px -2px rgba(0, 0, 0, 0.5);
-      --background-color: #121212;
-    }
-
     * {
-      margin: 0;
-      padding: 0;
       box-sizing: border-box;
     }
-
     body {
-      font-family: "Vazirmatn", system-ui, -apple-system, sans-serif;
-      background-color: var(--background-color);
-      color: var(--text-color);
-      line-height: 1.6;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      padding: 2rem 1rem;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 600px;
-      margin: 0 auto;
-    }
-
-    .logo-container {
-      background-color: #222;
-      border-radius: var(--border-radius);
-      box-shadow: var(--shadow);
-      padding: 1rem;
-      margin-bottom: 1.5rem;
-      text-align: center;
-    }
-
-    .logo-container img {
-      max-width: 150px;
-      height: auto;
-      object-fit: contain;
-      filter: drop-shadow(0 0 2px var(--primary-color));
+      font-family: "Vazirmatn", sans-serif;
+      margin: 0;
+      padding: 2rem;
+      background-color: #f0f0f0;
     }
 
     .card {
-      background-color: #1e1e2f;
-      border-radius: var(--border-radius);
-      box-shadow: var(--shadow);
+      background-color: #fff;
+      border-radius: 1rem;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      max-width: 600px;
+      margin: auto;
       overflow: hidden;
     }
 
     .card-header {
       padding: 1.5rem;
+      background-color: #4a90e2;
+      color: white;
       text-align: center;
-      border-bottom: 1px solid #33334d;
-      position: relative;
     }
 
     .card-header h1 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--primary-color);
       margin: 0;
+      font-size: 1.5rem;
       display: flex;
-      align-items: center;
       justify-content: center;
+      align-items: center;
       gap: 0.5rem;
+      flex-wrap: wrap;
     }
 
-    .card-header h1 i {
-      font-size: 1.3em;
+    .version-badge {
+      background-color: #fff;
+      color: #4a90e2;
+      padding: 0.25rem 1rem;
+      border-radius: 2rem;
+      font-weight: bold;
+      font-size: 0.9rem;
     }
 
     .card-body {
       padding: 2rem;
-    }
-
-    .card-footer {
-      padding: 1rem 1.5rem;
-      background-color: #222233;
       text-align: center;
-      font-size: 0.875rem;
-      color: var(--light-text);
-      border-top: 1px solid #33334d;
     }
 
     .download-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      max-width: 300px;
-      margin: 0 auto 1.5rem;
-      padding: 0.875rem 1.5rem;
-      background-color: var(--primary-color);
+      background-color: #4a90e2;
       color: white;
       border: none;
-      border-radius: 9999px;
+      border-radius: 1.5rem;
+      padding: 1rem 2rem;
       font-size: 1rem;
-      font-weight: 600;
-      text-align: center;
-      text-decoration: none;
       cursor: pointer;
-      transition: all 0.2s ease;
-      gap: 0.5rem;
+      transition: background-color 0.3s;
+      text-decoration: none;
+      display: inline-block;
     }
 
     .download-btn:hover {
-      background-color: var(--primary-hover);
-      transform: translateY(-2px);
+      background-color: #357abd;
     }
 
-    .alert {
-      padding: 1rem;
-      border-radius: var(--border-radius);
-      margin-bottom: 1rem;
-      text-align: center;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
+    .dropdown {
+      margin-top: 1rem;
+      position: relative;
+      display: inline-block;
     }
 
-    .alert-danger {
-      background-color: #4f1b1b;
-      color: #f87171;
-      border: 1px solid #fca5a5;
+    .dropdown-btn {
+      background-color: #e0e0e0;
+      color: black;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 1.5rem;
+      cursor: pointer;
+      font-size: 0.95rem;
     }
 
-    .alert-success {
-      background-color: #064e3b;
-      color: #a7f3d0;
-      border: 1px solid #6ee7b7;
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #fff;
+      min-width: 160px;
+      box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+      z-index: 1;
+      border-radius: 0.5rem;
+      text-align: right;
     }
 
-    .version-badge {
-      display: inline-flex;
-      align-items: center;
-      background-color: #2a2a42;
-      color: var(--primary-color);
-      font-weight: 600;
-      padding: 0.5rem 1.25rem;
-      border-radius: 9999px;
-      margin-bottom: 1.5rem;
-      font-size: 1.1rem;
-      border: 1px solid #444466;
-      gap: 0.5rem;
-      justify-content: center;
+    .dropdown-content a {
+      color: black;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      font-size: 0.9rem;
     }
 
-    /* آکاردئون */
+    .dropdown-content a:hover {
+      background-color: #f1f1f1;
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
     .accordion {
-      margin-top: 1.5rem;
-      border-radius: var(--border-radius);
-      background-color: #2a2a42;
-      overflow: hidden;
+      margin-top: 2rem;
+      border-top: 1px solid #ddd;
     }
 
     .accordion-item {
-      border-bottom: 1px solid #33334d;
+      border-bottom: 1px solid #ddd;
     }
 
     .accordion-header {
-      padding: 1rem 1.5rem;
+      padding: 1rem;
       cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .accordion-title {
-      font-weight: 600;
-      color: var(--primary-color);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .accordion-icon {
-      transition: transform 0.3s ease;
-      font-size: 0.9em;
-      color: var(--primary-color);
-    }
-
-    .accordion-item.active .accordion-icon {
-      transform: rotate(180deg);
+      background-color: #f9f9f9;
+      font-weight: bold;
     }
 
     .accordion-content {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s ease;
-      background-color: #1e1e2f;
-      color: var(--light-text);
+      padding: 0 1rem;
+      display: none;
+      background-color: #fff;
       font-size: 0.9rem;
-      white-space: pre-wrap;
-      padding: 0 1.5rem;
     }
 
     .accordion-item.active .accordion-content {
-      max-height: 500px;
-      padding: 1rem 1.5rem;
+      display: block;
+      padding: 1rem;
     }
 
-    /* استایل spinner */
-    .loading {
+    .card-footer {
+      padding: 1rem;
+      background-color: #f5f5f5;
+      text-align: center;
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    .footer-links {
+      margin-top: 0.5rem;
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 2rem 0;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      text-decoration: none;
+      color: #4a90e2;
     }
 
     .spinner {
-      width: 40px;
-      height: 40px;
-      border: 3px solid rgba(79, 70, 229, 0.2);
-      border-top-color: var(--primary-color);
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #4a90e2;
       border-radius: 50%;
+      width: 36px;
+      height: 36px;
       animation: spin 1s linear infinite;
-      margin-bottom: 1rem;
+      margin: auto;
     }
 
     @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
 
-    /* لینک‌ها */
-    a {
-      color: var(--primary-color);
-      text-decoration: none;
-      transition: color 0.2s ease;
-      font-weight: 500;
-    }
-
-    a:hover {
-      color: var(--primary-hover);
-    }
-
-    /* موبایل */
+    /* ✅ ریسپانسیو برای موبایل */
     @media (max-width: 480px) {
       body {
         padding: 1rem 0.75rem;
@@ -294,6 +206,12 @@
         font-size: 0.95rem;
         padding: 0.75rem 1.25rem;
         max-width: 100%;
+        margin-bottom: 1rem;
+      }
+
+      .dropdown-btn {
+        font-size: 0.95rem;
+        padding: 0.75rem 1.25rem;
       }
 
       .accordion-header {
@@ -309,88 +227,89 @@
         padding: 0.75rem 1rem;
       }
 
+      .footer-links {
+        flex-direction: column;
+        gap: 0.3rem;
+        font-size: 0.85rem;
+      }
+
       .card-footer {
         font-size: 0.8rem;
         padding: 0.75rem 1rem;
       }
+
+      .dropdown-content a {
+        padding: 10px 12px;
+        font-size: 0.9rem;
+      }
+
+      .spinner {
+        width: 32px;
+        height: 32px;
+      }
     }
   </style>
+  <script>
+    function toggleAccordion(index) {
+      const items = document.querySelectorAll(".accordion-item");
+      items.forEach((item, i) => {
+        item.classList.toggle("active", i === index && !item.classList.contains("active"));
+      });
+    }
+  </script>
 </head>
-
 <body>
-  <div class="container">
-    <div class="logo-container">
-      <img src="your-logo.png" alt="لوگو" />
+  <div class="card">
+    <div class="card-header">
+      <h1>
+        دانلود اپلیکیشن
+        <span class="version-badge">نسخه 1.0.5</span>
+      </h1>
     </div>
-
-    <div class="card">
-      <div class="card-header">
-        <h1><i class="fas fa-rocket"></i> دانلود آخرین نسخه v2rayNG</h1>
-      </div>
-      <div class="card-body" id="content">
-        <div class="loading">
-          <div class="spinner"></div>
-          <p>در حال دریافت اطلاعات از GitHub...</p>
+    <div class="card-body">
+      <a href="#" class="download-btn">دانلود نسخه جدید</a>
+      <div class="dropdown">
+        <button class="dropdown-btn">دانلود نسخه‌های قبلی</button>
+        <div class="dropdown-content">
+          <a href="#">نسخه 1.0.4</a>
+          <a href="#">نسخه 1.0.3</a>
+          <a href="#">نسخه 1.0.2</a>
         </div>
       </div>
-      <div class="card-footer">
-        <div>
-          نوشته شده توسط
-          <a href="https://t.me/dvhost_cloud" target="_blank">DVHOST.CLOUD</a>
+      <div class="accordion">
+        <div class="accordion-item">
+          <div class="accordion-header" onclick="toggleAccordion(0)">
+            تغییرات نسخه 1.0.5
+          </div>
+          <div class="accordion-content">
+            <ul>
+              <li>رفع باگ نمایش نادرست اطلاعات</li>
+              <li>افزایش سرعت بارگذاری</li>
+              <li>افزودن حالت تاریک</li>
+            </ul>
+          </div>
         </div>
-        <div>
-          دریافت آخرین نسخه از
-          <a href="https://github.com/2dust/v2rayNG/releases" target="_blank">ریلیزهای GitHub</a>
+        <div class="accordion-item">
+          <div class="accordion-header" onclick="toggleAccordion(1)">
+            تغییرات نسخه 1.0.4
+          </div>
+          <div class="accordion-content">
+            <ul>
+              <li>بهبود رابط کاربری</li>
+              <li>پشتیبانی از زبان انگلیسی</li>
+            </ul>
+          </div>
         </div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <div>© 2025 کلیه حقوق محفوظ است</div>
+      <div class="footer-links">
+        <a href="#">تماس با ما</a>
+        <a href="#">درباره ما</a>
+        <a href="#">حریم خصوصی</a>
       </div>
     </div>
   </div>
-
-  <script>
-    async function fetchReleases() {
-      try {
-        const res = await fetch("https://api.github.com/repos/2dust/v2rayNG/releases");
-        const releases = await res.json();
-        const stable = releases.find(r => !r.prerelease);
-        const universal = stable.assets.find(a => a.name.includes("universal.apk"));
-        const notes = stable.body;
-        const version = stable.tag_name;
-
-        document.getElementById("content").innerHTML = `
-          <div class="text-center">
-            <div class="version-badge"><i class="fas fa-tag"></i> نسخه آخر: ${version}</div>
-          </div>
-          <div class="text-center">
-            <a href="${universal.browser_download_url}" class="download-btn" download>
-              <i class="fas fa-download"></i> دانلود فایل APK
-            </a>
-          </div>
-          <div class="accordion">
-            <div class="accordion-item">
-              <div class="accordion-header" onclick="toggleAccordion(this)">
-                <span class="accordion-title"><i class="fas fa-clipboard-list"></i> تغییرات نسخه</span>
-                <span class="accordion-icon"><i class="fas fa-chevron-down"></i></span>
-              </div>
-              <div class="accordion-content"><div class="accordion-body">${notes}</div></div>
-            </div>
-          </div>
-        `;
-      } catch (err) {
-        document.getElementById("content").innerHTML = `
-          <div class="alert alert-danger">
-            <i class="fas fa-exclamation-circle"></i> خطا در دریافت اطلاعات: ${err.message}
-          </div>
-        `;
-      }
-    }
-
-    function toggleAccordion(header) {
-      const item = header.parentElement;
-      item.classList.toggle("active");
-    }
-
-    fetchReleases();
-  </script>
 </body>
-
 </html>
