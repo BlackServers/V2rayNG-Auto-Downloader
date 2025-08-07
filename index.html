@@ -476,7 +476,6 @@
   </div>
 
   <script>
-    // استخراج پارامتر URL
     function getUrlParameter(name) {
       name = name.replace(/[\[\]]/g, "\\$&");
       const regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)");
@@ -486,7 +485,6 @@
       return decodeURIComponent(results[2].replace(/\+/g, " "));
     }
 
-    // تشخیص معماری CPU گوشی
     function detectArch() {
       const ua = navigator.userAgent.toLowerCase();
       if (ua.includes("arm64") || ua.includes("aarch64")) return "arm64";
@@ -521,9 +519,13 @@
             let downloadUrl = "";
 
             if (requestedRelease.assets) {
-              let asset = requestedRelease.assets.find(a => a.name.toLowerCase().includes(arch) && a.name.endsWith(".apk"));
+              let asset = requestedRelease.assets.find(
+                (a) => a.name.toLowerCase().includes(arch) && a.name.endsWith(".apk")
+              );
               if (!asset) {
-                asset = requestedRelease.assets.find(a => a.name.includes("universal.apk"));
+                asset = requestedRelease.assets.find((a) =>
+                  a.name.includes("universal.apk")
+                );
               }
               if (asset) downloadUrl = asset.browser_download_url;
             }
@@ -586,9 +588,13 @@
         const arch = detectArch();
         let universalDownloadUrl = "";
         if (latestRelease.assets) {
-          let asset = latestRelease.assets.find(a => a.name.toLowerCase().includes(arch) && a.name.endsWith(".apk"));
+          let asset = latestRelease.assets.find(
+            (a) => a.name.toLowerCase().includes(arch) && a.name.endsWith(".apk")
+          );
           if (!asset) {
-            asset = latestRelease.assets.find(a => a.name.includes("universal.apk"));
+            asset = latestRelease.assets.find((a) =>
+              a.name.includes("universal.apk")
+            );
           }
           if (asset) {
             universalDownloadUrl = asset.browser_download_url;
@@ -617,13 +623,13 @@
         </div>
 
         <div class="text-center">
-          <a href="${downloadUrl}" class="download-btn disabled" id="downloadBtn" download aria-disabled="true">
+          <a href="${downloadUrl}" class="download-btn" id="downloadBtn" download>
             <i class="fas fa-download"></i> دانلود نسخه ${version}
           </a>
         </div>
 
         <div class="countdown" id="countdown">
-          دانلود بعد از <span id="timer">30</span> ثانیه فعال می‌شود.
+          دانلود بعد از <span id="timer">30</span> ثانیه
         </div>
 
         <div class="dropdown" id="versionDropdown">
@@ -644,7 +650,7 @@
         <div class="accordion">
           <div class="accordion-item">
             <div class="accordion-header" onclick="toggleAccordion(this)" role="button" tabindex="0" aria-expanded="false" aria-controls="changes-content">
-              <span class="accordion-title">
+              <span class="accordion-title" id="accordionTitle">
                 <i class="fas fa-clipboard-list"></i>
                 مشاهده تغییرات نسخه ${version}
               </span>
@@ -664,8 +670,10 @@
       const countdownDiv = document.getElementById("countdown");
       const dropdownBtn = document.getElementById("dropdownBtn");
       const dropdownContent = document.getElementById("versionList");
+      const accordionTitle = document.getElementById("accordionTitle");
+      const changesContent = document.querySelector(".accordion-body");
 
-      // لیست نسخه‌ها
+      // لیست نسخه‌ها (یونیک و پایدار)
       dropdownContent.innerHTML = "";
       const stableUniqueVersions = [];
       const seen = new Set();
@@ -714,24 +722,25 @@
           icon.className = "fas fa-download";
           downloadBtn.appendChild(icon);
           downloadBtn.appendChild(document.createTextNode(" دانلود نسخه " + tag));
-          downloadBtn.classList.add("disabled");
-          downloadBtn.setAttribute("aria-disabled", "true");
-          timerSpan.textContent = "30";
-          countdownDiv.style.display = "flex";
+          // دکمه همیشه فعال است، پس disabled و aria-disabled را حذف می‌کنیم
+          downloadBtn.classList.remove("disabled");
+          downloadBtn.setAttribute("aria-disabled", "false");
+          downloadBtn.style.pointerEvents = "auto";
+          downloadBtn.style.opacity = "1";
 
           // به‌روزرسانی نسخه در نشانگر نسخه
           document.getElementById("versionBadge").textContent = "نسخه " + tag;
 
-          // تغییر تغییرات نسخه
-          const changesContent = document.querySelector(".accordion-body");
+          // تغییر عنوان و متن تغییرات نسخه
+          accordionTitle.textContent = `مشاهده تغییرات نسخه ${tag}`;
           changesContent.innerHTML = release.body.replace(/\n/g, "<br>");
 
           // بستن منوی کشویی
           dropdownContent.classList.remove("show");
           dropdownBtn.setAttribute("aria-expanded", "false");
 
-          // ریست تایمر و شروع مجدد
-          startCountdown(downloadBtn, timerSpan, countdownDiv, true);
+          // ریست تایمر به 30 اما فقط نمایش داده شود، دکمه تغییری نمی‌کند چون همیشه فعال است
+          timerSpan.textContent = "30";
         });
 
         dropdownContent.appendChild(option);
@@ -755,12 +764,8 @@
         }
       });
 
-      // وقتی روی دکمه دانلود کلیک شد، به کاربر واکنش بده (مثلا تغییر رنگ و متن برای 3 ثانیه)
+      // کلیک روی دکمه دانلود
       downloadBtn.addEventListener("click", (e) => {
-        if (downloadBtn.classList.contains("disabled")) {
-          e.preventDefault();
-          return;
-        }
         e.preventDefault();
 
         downloadBtn.style.backgroundColor = "#059669"; // سبز رنگ موفقیت
@@ -771,41 +776,29 @@
           downloadBtn.textContent = originalText;
           // شروع دانلود واقعی
           window.location.href = downloadBtn.href;
-        }, 2000);
+        }, 1500);
       });
 
-      // شروع تایمر
-      startCountdown(downloadBtn, timerSpan, countdownDiv);
+      // شمارش معکوس فقط به صورت نمایشی و مستقل (دکمه همیشه فعال است)
+      startCountdown(timerSpan);
     }
 
-    function startCountdown(btn, timerEl, container, autoStartDownload = false) {
+    function startCountdown(timerEl) {
       let timer = 30;
-      btn.classList.add("disabled");
-      btn.setAttribute("aria-disabled", "true");
-      btn.style.pointerEvents = "none";
-      btn.style.opacity = "0.6";
+      timerEl.textContent = timer;
 
-      const interval = setInterval(() => {
+      if (window.countdownInterval) {
+        clearInterval(window.countdownInterval);
+      }
+
+      window.countdownInterval = setInterval(() => {
         timer--;
+        if (timer < 0) timer = 30;
         timerEl.textContent = timer;
-        if (timer <= 0) {
-          clearInterval(interval);
-          timerEl.textContent = "0";
-          btn.classList.remove("disabled");
-          btn.setAttribute("aria-disabled", "false");
-          btn.style.pointerEvents = "auto";
-          btn.style.opacity = "1";
-          container.style.display = "flex";
-
-          // دانلود خودکار بلافاصله وقتی تایمر صفر شد
-          if (autoStartDownload) {
-            btn.click();
-          }
-        }
       }, 1000);
     }
 
-    // آکاردئون باز و بسته شود
+    // باز و بسته شدن آکاردئون
     function toggleAccordion(header) {
       const item = header.parentElement;
       const content = item.querySelector(".accordion-content");
