@@ -172,6 +172,7 @@
       position: relative;
       overflow: hidden;
       gap: 0.5rem;
+      user-select: none;
     }
 
     .download-btn.disabled,
@@ -606,7 +607,8 @@
     }
 
     function renderWithDownloadBtn(version, downloadUrl, notes, allReleases) {
-      // HTML اولیه:
+      const content = document.getElementById("content");
+
       const html = `
         <div class="text-center">
           <div class="version-badge" id="versionBadge">
@@ -649,13 +651,13 @@
               <span class="accordion-icon"><i class="fas fa-chevron-down"></i></span>
             </div>
             <div class="accordion-content" id="changes-content" aria-hidden="true">
-              <div class="accordion-body">${notes}</div>
+              <div class="accordion-body">${notes.replace(/\n/g, "<br>")}</div>
             </div>
           </div>
         </div>
       `;
 
-      document.getElementById("content").innerHTML = html;
+      content.innerHTML = html;
 
       const downloadBtn = document.getElementById("downloadBtn");
       const timerSpan = document.getElementById("timer");
@@ -663,7 +665,7 @@
       const dropdownBtn = document.getElementById("dropdownBtn");
       const dropdownContent = document.getElementById("versionList");
 
-      // پر کردن لیست نسخه ها
+      // لیست نسخه‌ها
       dropdownContent.innerHTML = "";
       const stableUniqueVersions = [];
       const seen = new Set();
@@ -697,14 +699,21 @@
         option.addEventListener("click", (e) => {
           e.preventDefault();
 
-          // تغییر دکمه دانلود به نسخه انتخاب شده و لینک جدید
+          // پیدا کردن asset مربوط به نسخه انتخاب شده و معماری کاربر
+          const arch = detectArch();
+          let newAsset = release.assets.find(a => a.name.toLowerCase().includes(arch) && a.name.endsWith(".apk"));
+          if (!newAsset) {
+            newAsset = release.assets.find(a => a.name.includes("universal.apk"));
+          }
+          if (!newAsset) return;
+
+          // تغییر متن و لینک دکمه دانلود به نسخه انتخاب شده
+          downloadBtn.href = newAsset.browser_download_url;
           downloadBtn.textContent = "";
           const icon = document.createElement("i");
           icon.className = "fas fa-download";
           downloadBtn.appendChild(icon);
           downloadBtn.appendChild(document.createTextNode(" دانلود نسخه " + tag));
-          downloadBtn.href = asset.browser_download_url;
-
           downloadBtn.classList.add("disabled");
           downloadBtn.setAttribute("aria-disabled", "true");
           timerSpan.textContent = "30";
@@ -713,12 +722,16 @@
           // به‌روزرسانی نسخه در نشانگر نسخه
           document.getElementById("versionBadge").textContent = "نسخه " + tag;
 
+          // تغییر تغییرات نسخه
+          const changesContent = document.querySelector(".accordion-body");
+          changesContent.innerHTML = release.body.replace(/\n/g, "<br>");
+
           // بستن منوی کشویی
           dropdownContent.classList.remove("show");
           dropdownBtn.setAttribute("aria-expanded", "false");
 
-          // ریست تایمر دانلود
-          startCountdown(downloadBtn, timerSpan, countdownDiv);
+          // ریست تایمر و شروع مجدد
+          startCountdown(downloadBtn, timerSpan, countdownDiv, true);
         });
 
         dropdownContent.appendChild(option);
@@ -742,30 +755,54 @@
         }
       });
 
-      function startCountdown(btn, timerEl, container) {
-        let timer = 30;
-        btn.classList.add("disabled");
-        btn.setAttribute("aria-disabled", "true");
-        btn.style.pointerEvents = "none";
-        btn.style.opacity = "0.6";
+      // وقتی روی دکمه دانلود کلیک شد، به کاربر واکنش بده (مثلا تغییر رنگ و متن برای 3 ثانیه)
+      downloadBtn.addEventListener("click", (e) => {
+        if (downloadBtn.classList.contains("disabled")) {
+          e.preventDefault();
+          return;
+        }
+        e.preventDefault();
 
-        const interval = setInterval(() => {
-          timer--;
-          timerEl.textContent = timer;
-          if (timer <= 0) {
-            clearInterval(interval);
-            timerEl.textContent = "0";
-            btn.classList.remove("disabled");
-            btn.setAttribute("aria-disabled", "false");
-            btn.style.pointerEvents = "auto";
-            btn.style.opacity = "1";
-            container.style.display = "none";
-          }
-        }, 1000);
-      }
+        downloadBtn.style.backgroundColor = "#059669"; // سبز رنگ موفقیت
+        const originalText = downloadBtn.textContent;
+        downloadBtn.textContent = "در حال دانلود...";
+        setTimeout(() => {
+          downloadBtn.style.backgroundColor = "";
+          downloadBtn.textContent = originalText;
+          // شروع دانلود واقعی
+          window.location.href = downloadBtn.href;
+        }, 2000);
+      });
 
-      // شروع تایمر برای نسخه اول
+      // شروع تایمر
       startCountdown(downloadBtn, timerSpan, countdownDiv);
+    }
+
+    function startCountdown(btn, timerEl, container, autoStartDownload = false) {
+      let timer = 30;
+      btn.classList.add("disabled");
+      btn.setAttribute("aria-disabled", "true");
+      btn.style.pointerEvents = "none";
+      btn.style.opacity = "0.6";
+
+      const interval = setInterval(() => {
+        timer--;
+        timerEl.textContent = timer;
+        if (timer <= 0) {
+          clearInterval(interval);
+          timerEl.textContent = "0";
+          btn.classList.remove("disabled");
+          btn.setAttribute("aria-disabled", "false");
+          btn.style.pointerEvents = "auto";
+          btn.style.opacity = "1";
+          container.style.display = "flex";
+
+          // دانلود خودکار بلافاصله وقتی تایمر صفر شد
+          if (autoStartDownload) {
+            btn.click();
+          }
+        }
+      }, 1000);
     }
 
     // آکاردئون باز و بسته شود
