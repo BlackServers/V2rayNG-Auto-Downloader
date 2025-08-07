@@ -157,7 +157,7 @@
       justify-content: center;
       width: 100%;
       max-width: 300px;
-      margin: 0 auto 1.5rem;
+      margin: 0 auto 0.75rem;
       padding: 0.875rem 1.5rem;
       background-color: var(--primary-color);
       color: white;
@@ -174,7 +174,7 @@
       gap: 0.5rem;
     }
 
-    .download-btn:hover:not([disabled]) {
+    .download-btn:hover {
       color: #ccc;
       text-decoration: none;
       background-color: var(--primary-hover);
@@ -183,9 +183,13 @@
         0 2px 4px -1px rgba(0, 0, 0, 0.2);
     }
 
-    .download-btn[disabled] {
+    .download-btn[disabled],
+    .download-btn[disabled]:hover {
       cursor: not-allowed;
-      opacity: 0.6;
+      background-color: #555577 !important;
+      color: #bbb !important;
+      transform: none !important;
+      box-shadow: none !important;
     }
 
     .countdown {
@@ -197,6 +201,7 @@
       align-items: center;
       justify-content: center;
       gap: 0.3rem;
+      user-select: none;
     }
 
     .countdown span {
@@ -320,6 +325,7 @@
       overflow: hidden;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
       background-color: #2a2a42;
+      user-select: none;
     }
 
     .accordion-item {
@@ -593,115 +599,88 @@
           <i class="fas fa-check-circle"></i>
           در حال هدایت به دانلود نسخه درخواستی...
         </div>
-        <div class="countdown">
-          منتظر بمانید تا دکمه دانلود فعال شود:
-          <span id="countdown-timer">30</span> ثانیه
+        
+        <div class="text-center" style="margin-top: 1rem;">
+          <a href="${downloadUrl}" class="download-btn" download>
+            <i class="fas fa-download"></i>
+            دانلود مستقیم نسخه ${version}
+          </a>
         </div>
-        <button id="download-btn" class="download-btn" disabled>
-          <i class="fas fa-download"></i> دانلود مستقیم نسخه ${version}
-        </button>
-        <div class="accordion" id="release-notes">
+        
+        <div class="accordion" id="releaseNotes">
           <div class="accordion-item active">
-            <div class="accordion-header">
-              <span class="accordion-title"><i class="fas fa-list"></i> تغییرات نسخه</span>
+            <div class="accordion-header" tabindex="0">
+              <span class="accordion-title">
+                <i class="fas fa-info-circle"></i>
+                تغییرات نسخه ${version}
+              </span>
               <i class="fas fa-chevron-down accordion-icon"></i>
             </div>
-            <div class="accordion-content" style="max-height: none; padding: 1rem 1.5rem;">
-              <pre>${escapeHtml(notes)}</pre>
+            <div class="accordion-content" style="max-height: 500px;">
+              <pre>${notes || "بدون توضیح"}</pre>
             </div>
           </div>
         </div>
-        <div style="margin-top: 2rem; text-align: center;">
-          <a href="${window.location.pathname}">بازگشت به صفحه اصلی</a>
-        </div>
       `;
-
       document.getElementById("content").innerHTML = content;
-
-      const downloadBtn = document.getElementById("download-btn");
-      let countdown = 30;
-      const countdownEl = document.getElementById("countdown-timer");
-
-      const intervalId = setInterval(() => {
-        countdown--;
-        countdownEl.textContent = countdown;
-        if (countdown <= 0) {
-          clearInterval(intervalId);
-          downloadBtn.disabled = false;
-          countdownEl.parentNode.style.display = "none";
-          downloadBtn.onclick = () => {
-            window.location.href = downloadUrl;
-          };
-        }
-      }, 1000);
-
       setupAccordion();
     }
 
-    function renderReleaseInfo(
-      latestVersion,
-      universalDownloadUrl,
-      releaseNotes,
-      allReleases
-    ) {
-      // ساخت منوی نسخه‌ها
-      const dropdownId = "version-dropdown";
-      const dropdownBtnId = "version-dropdown-btn";
-
-      let dropdownHtml = `
-        <div class="dropdown" id="${dropdownId}">
-          <button id="${dropdownBtnId}" class="dropdown-btn" aria-haspopup="listbox" aria-expanded="false">
-            <i class="fas fa-tag"></i> انتخاب نسخه
-            <i class="fas fa-chevron-down" style="margin-left: 8px;"></i>
-          </button>
-          <div class="dropdown-content" role="listbox" tabindex="-1" aria-label="لیست نسخه‌ها">
-      `;
-
-      // مرتب کردن نسخه‌ها و فیلتر نسخه‌های پایدار بدون تکرار (universal.apk)
-      const versionsSet = new Set();
-      for (const release of allReleases) {
-        if (release.prerelease) continue;
-        const version = release.tag_name;
-        if (versionsSet.has(version)) continue;
-        versionsSet.add(version);
-
-        // فقط اگر فایل universal.apk وجود داشت اضافه کن
-        if (
-          release.assets &&
-          release.assets.some((a) => a.name.includes("universal.apk"))
-        ) {
-          dropdownHtml += `<a href="?version=${encodeURIComponent(
-            version
-          )}" role="option">${version}</a>`;
-        }
-      }
-      dropdownHtml += `</div></div>`;
-
+    // نمایش اطلاعات نسخه آخر و منوی نسخه‌ها
+    function renderReleaseInfo(latestVersion, downloadUrl, releaseNotes, allReleases) {
       let content = `
-        <div class="text-center">
-          <div class="version-badge">
-            <i class="fas fa-tag"></i> آخرین نسخه: ${latestVersion}
-          </div>
-          ${dropdownHtml}
-          <button id="download-btn" class="download-btn" ${
-            universalDownloadUrl ? "" : "disabled"
-          }>
-            <i class="fas fa-download"></i> دانلود مستقیم نسخه ${latestVersion}
+        <div class="version-badge" aria-live="polite" aria-atomic="true">
+          <i class="fas fa-tag"></i>
+          نسخه ${latestVersion}
+        </div>
+
+        <a href="${downloadUrl}" class="download-btn" id="mainDownloadBtn" download>
+          <i class="fas fa-download"></i>
+          دانلود مستقیم نسخه ${latestVersion}
+        </a>
+
+        <div class="countdown" id="countdown">
+          دانلود در <span id="timer">5</span> ثانیه فعال می‌شود...
+        </div>
+
+        <div class="dropdown" id="versionDropdown">
+          <button
+            class="dropdown-btn"
+            id="dropdownBtn"
+            aria-haspopup="listbox"
+            aria-expanded="false"
+            aria-controls="dropdownList"
+            type="button"
+          >
+            انتخاب نسخه
+            <i class="fas fa-chevron-down" aria-hidden="true"></i>
           </button>
-          <div class="countdown" id="countdown-container">
-            منتظر بمانید تا دکمه دانلود فعال شود:
-            <span id="countdown-timer">30</span> ثانیه
+          <div class="dropdown-content" id="dropdownList" role="listbox" tabindex="-1">
+            ${allReleases
+              .filter((release) => !release.prerelease)
+              .map((release) => {
+                const version = release.tag_name;
+                const universalAsset = release.assets.find((asset) =>
+                  asset.name.includes("universal.apk")
+                );
+                const url = universalAsset ? universalAsset.browser_download_url : "#";
+                return `<a href="#" role="option" data-url="${url}" data-version="${version}">${version}</a>`;
+              })
+              .join("")}
           </div>
         </div>
 
-        <div class="accordion" id="release-notes">
+        <div class="accordion" id="releaseNotes">
           <div class="accordion-item active">
-            <div class="accordion-header" tabindex="0" role="button" aria-expanded="true" aria-controls="release-notes-content">
-              <span class="accordion-title"><i class="fas fa-list"></i> تغییرات نسخه</span>
+            <div class="accordion-header" tabindex="0">
+              <span class="accordion-title">
+                <i class="fas fa-info-circle"></i>
+                تغییرات نسخه ${latestVersion}
+              </span>
               <i class="fas fa-chevron-down accordion-icon"></i>
             </div>
-            <div class="accordion-content" id="release-notes-content" style="max-height: none; padding: 1rem 1.5rem;">
-              <pre>${escapeHtml(releaseNotes)}</pre>
+            <div class="accordion-content" style="max-height: 500px;">
+              <pre>${releaseNotes || "بدون توضیح"}</pre>
             </div>
           </div>
         </div>
@@ -709,108 +688,166 @@
 
       document.getElementById("content").innerHTML = content;
 
-      // فعال کردن دکمه دانلود بعد از شمارش معکوس
-      const downloadBtn = document.getElementById("download-btn");
-      const countdownEl = document.getElementById("countdown-timer");
-      const countdownContainer = document.getElementById("countdown-container");
-      let countdown = 30;
+      // مخفی کردن دکمه دانلود اولیه و تایمر
+      const mainDownloadBtn = document.getElementById("mainDownloadBtn");
+      const countdown = document.getElementById("countdown");
+      mainDownloadBtn.disabled = true;
+      mainDownloadBtn.style.pointerEvents = "none";
+
+      // شروع تایمر 5 ثانیه‌ای
+      let timer = 5;
+      const timerElem = document.getElementById("timer");
       const intervalId = setInterval(() => {
-        countdown--;
-        countdownEl.textContent = countdown;
-        if (countdown <= 0) {
+        timer--;
+        if (timerElem) timerElem.textContent = timer;
+        if (timer === 0) {
           clearInterval(intervalId);
-          downloadBtn.disabled = false;
-          countdownContainer.style.display = "none";
+          countdown.style.display = "none";
+          mainDownloadBtn.disabled = false;
+          mainDownloadBtn.style.pointerEvents = "auto";
         }
       }, 1000);
 
-      if (universalDownloadUrl) {
-        downloadBtn.onclick = () => {
-          window.location.href = universalDownloadUrl;
-        };
-      }
-
-      // منوی کرکره‌ای
+      // تنظیم dropdown نسخه‌ها
       setupDropdown();
 
-      // آکاردئون تغییرات نسخه
+      // تنظیم آکاردئون تغییرات نسخه
       setupAccordion();
     }
 
-    // راه‌اندازی منوی کرکره‌ای نسخه‌ها
-    function setupDropdown() {
-      const dropdown = document.getElementById("version-dropdown");
-      if (!dropdown) return;
-      const btn = document.getElementById("version-dropdown-btn");
-      const menu = dropdown.querySelector(".dropdown-content");
-
-      function closeDropdown() {
-        menu.classList.remove("show");
-        btn.setAttribute("aria-expanded", "false");
-      }
-
-      function toggleDropdown() {
-        const isShown = menu.classList.contains("show");
-        if (isShown) {
-          closeDropdown();
-        } else {
-          menu.classList.add("show");
-          btn.setAttribute("aria-expanded", "true");
-        }
-      }
-
-      btn.onclick = (e) => {
-        e.stopPropagation();
-        toggleDropdown();
-      };
-
-      // بستن منو اگر کلیک بیرون شد
-      document.addEventListener("click", (e) => {
-        if (!dropdown.contains(e.target)) {
-          closeDropdown();
-        }
-      });
-
-      // کلیک روی لینک‌ها منو را ببند
-      menu.querySelectorAll("a").forEach((link) => {
-        link.onclick = () => {
-          closeDropdown();
-        };
-      });
-    }
-
-    // راه‌اندازی آکاردئون تغییرات نسخه
+    // راه‌اندازی آکاردئون (باز و بسته شدن)
     function setupAccordion() {
       const accordionItems = document.querySelectorAll(".accordion-item");
       accordionItems.forEach((item) => {
         const header = item.querySelector(".accordion-header");
-        header.onclick = () => {
+        header.addEventListener("click", () => {
           const isActive = item.classList.contains("active");
           if (isActive) {
             item.classList.remove("active");
-            header.setAttribute("aria-expanded", "false");
           } else {
-            // اگر خواستی فقط یک آیتم باز باشد، اینجا می‌تونی بقیه رو ببندی:
-            // accordionItems.forEach(i => i.classList.remove("active"));
+            // فقط یک آیتم باز باشد
+            accordionItems.forEach((el) => el.classList.remove("active"));
             item.classList.add("active");
-            header.setAttribute("aria-expanded", "true");
           }
-        };
+        });
+        // دسترسی کیبورد (اینتر و اسپیس)
+        header.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            header.click();
+          }
+        });
       });
     }
 
-    // فرار دادن کاراکترهای HTML در متن (برای امنیت)
-    function escapeHtml(text) {
-      if (!text) return "";
-      return text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+    // راه‌اندازی منوی نسخه‌ها (dropdown)
+    function setupDropdown() {
+      const dropdownBtn = document.getElementById("dropdownBtn");
+      const dropdownContent = document.getElementById("dropdownList");
+      const mainDownloadBtn = document.getElementById("mainDownloadBtn");
+      const countdown = document.getElementById("countdown");
+
+      function closeDropdown() {
+        dropdownContent.classList.remove("show");
+        dropdownBtn.setAttribute("aria-expanded", "false");
+      }
+
+      dropdownBtn.addEventListener("click", () => {
+        if (dropdownContent.classList.contains("show")) {
+          closeDropdown();
+        } else {
+          dropdownContent.classList.add("show");
+          dropdownBtn.setAttribute("aria-expanded", "true");
+          dropdownContent.focus();
+        }
+      });
+
+      // کلیک روی گزینه نسخه
+      dropdownContent.querySelectorAll("a").forEach((link) => {
+        link.addEventListener("click", (e) => {
+          e.preventDefault();
+          const url = link.getAttribute("data-url");
+          const version = link.getAttribute("data-version");
+          if (!url || url === "#") {
+            alert("فایل دانلود برای این نسخه موجود نیست.");
+            return;
+          }
+
+          // تغییر دکمه دانلود و تایمر
+          mainDownloadBtn.href = url;
+          mainDownloadBtn.textContent = `دانلود مستقیم نسخه ${version}`;
+          mainDownloadBtn.disabled = false;
+          mainDownloadBtn.style.pointerEvents = "auto";
+
+          countdown.style.display = "none";
+
+          // به‌روزرسانی تغییرات نسخه
+          fetchReleaseNotes(version);
+
+          closeDropdown();
+        });
+      });
+
+      // بستن منو با کلیک بیرون
+      document.addEventListener("click", (e) => {
+        if (
+          !dropdownBtn.contains(e.target) &&
+          !dropdownContent.contains(e.target)
+        ) {
+          closeDropdown();
+        }
+      });
+
+      // کلید ESC بستن منو
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          closeDropdown();
+          dropdownBtn.focus();
+        }
+      });
     }
 
-    // فراخوانی تابع اصلی
+    // نمایش تغییرات نسخه انتخابی
+    async function fetchReleaseNotes(version) {
+      try {
+        const response = await fetch(
+          "https://api.github.com/repos/2dust/v2rayNG/releases"
+        );
+        if (!response.ok) {
+          throw new Error("خطا در دریافت تغییرات نسخه");
+        }
+        const releases = await response.json();
+        const release = releases.find((r) => r.tag_name === version);
+        if (!release) {
+          throw new Error("تغییرات نسخه یافت نشد");
+        }
+        const notes = release.body || "بدون توضیح";
+
+        // به‌روزرسانی بخش آکاردئون
+        const releaseNotesDiv = document.getElementById("releaseNotes");
+        if (releaseNotesDiv) {
+          releaseNotesDiv.innerHTML = `
+            <div class="accordion-item active">
+              <div class="accordion-header" tabindex="0">
+                <span class="accordion-title">
+                  <i class="fas fa-info-circle"></i>
+                  تغییرات نسخه ${version}
+                </span>
+                <i class="fas fa-chevron-down accordion-icon"></i>
+              </div>
+              <div class="accordion-content" style="max-height: 500px;">
+                <pre>${notes}</pre>
+              </div>
+            </div>
+          `;
+          setupAccordion();
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // اجرای اصلی
     fetchReleases();
   </script>
 </body>
