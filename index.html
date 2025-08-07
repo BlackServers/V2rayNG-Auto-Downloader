@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>دانلود خودکار V2RayNG</title>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/189/189665.png" type="image/png">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
+      color: #fff;
+      font-family: 'Vazirmatn', 'Roboto', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2.8em;
+      margin-bottom: 0.3em;
+    }
+    p {
+      font-size: 1.2em;
+      margin-bottom: 1.5em;
+    }
+    a {
+      background: #1e90ff;
+      color: #fff;
+      padding: 15px 30px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-size: 1.1em;
+      transition: background 0.3s, transform 0.2s;
+    }
+    a:hover {
+      background: #0066cc;
+      transform: scale(1.05);
+    }
+    .icon {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 20px;
+      filter: drop-shadow(0 0 10px #1e90ff);
+    }
+  </style>
+</head>
+<body>
+  <img class="icon" src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="App Icon">
+  <h1>دانلود خودکار V2RayNG</h1>
+  <p>در حال شناسایی نسخه مناسب برای دستگاه شما...</p>
+  <a id="download" href="#" style="display: none;">دانلود</a>
+
+  <script>
+    async function getLatestV2RayNGRelease() {
+      try {
+        const response = await fetch('https://api.github.com/repos/2dust/v2rayNG/releases/latest');
+        const data = await response.json();
+        const assets = data.assets;
+
+        const ua = navigator.userAgent.toLowerCase();
+        let arch = 'arm64-v8a';
+        if (ua.includes('arm64')) arch = 'arm64-v8a';
+        else if (ua.includes('armeabi') || ua.includes('armv7')) arch = 'armeabi-v7a';
+        else if (ua.includes('x86_64')) arch = 'x86_64';
+        else if (ua.includes('x86')) arch = 'x86';
+
+        const file = assets.find(asset =>
+          asset.name.endsWith('.apk') && asset.name.includes(arch)
+        );
+
+        if (file) {
+          const link = document.getElementById('download');
+          link.href = file.browser_download_url;
+          link.textContent = `دانلود نسخه ${arch}`;
+          link.style.display = 'inline-block';
+        } else {
+          document.querySelector('p').textContent = 'فایل مناسب برای معماری شما یافت نشد.';
+        }
+      } catch (error) {
+        document.querySelector('p').textContent = 'خطا در دریافت اطلاعات از GitHub';
+        console.error(error);
+      }
+    }
+
+    getLatestV2RayNGRelease();
+  </script>
+</body>
+</html>
