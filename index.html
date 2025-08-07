@@ -19,7 +19,7 @@
     :root {
       --primary-color: #4f46e5;
       --primary-hover: #4338ca;
-      --secondary-color: #121212; /* تغییر به مشکی */
+      --secondary-color: #f3f4f6;
       --text-color: #fff;
       --light-text: #a5acc7;
       --success-color: #10b981;
@@ -55,12 +55,23 @@
     }
 
     .logo-container {
-      /* حذف لوگو - اگر نیاز به حذف کل فضای لوگو بود این را هم می‌توانید حذف کنید */
-      display: none;
+      background-color: #222;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .logo-container img {
+      max-width: 150px;
+      height: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 0 2px var(--primary-color));
     }
 
     .card {
-      background-color: var(--secondary-color); /* تغییر از سرمه‌ای به مشکی */
+      background-color: #1e1e2f;
       border-radius: var(--border-radius);
       box-shadow: var(--shadow);
       overflow: hidden;
@@ -241,7 +252,7 @@
       background-color: #2a2a42;
       color: var(--primary-color);
       border: 1px solid var(--primary-color);
-      border-radius: 6px; /* مستطیلی با گوشه‌های کمی گرد */
+      border-radius: 6px;
       font-size: 1rem;
       font-weight: 600;
       text-align: center;
@@ -422,11 +433,13 @@
 
 <body>
   <div class="container">
-    <!-- لوگو حذف شده -->
+    <div class="logo-container">
+      <img src="your-logo.png" alt="لوگو" id="logo" />
+    </div>
 
     <div class="card">
       <div class="card-header">
-        <h1>دانلود آخرین نسخه v2rayNG</h1>
+        <h1><i class="fas fa-rocket"></i> دانلود آخرین نسخه v2rayNG</h1>
       </div>
       <div class="card-body" id="content">
         <div class="loading">
@@ -454,7 +467,7 @@
   </div>
 
   <script>
-    // همان اسکریپت قبلی بدون تغییر
+    // تابع استخراج پارامترهای URL
     function getUrlParameter(name) {
       name = name.replace(/[\[\]]/g, "\\$&");
       const regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)");
@@ -464,6 +477,7 @@
       return decodeURIComponent(results[2].replace(/\+/g, " "));
     }
 
+    // دریافت اطلاعات ریلیزها از GitHub
     async function fetchReleases() {
       try {
         const response = await fetch(
@@ -516,6 +530,7 @@
           return;
         }
 
+        // نسخه‌های پایدار و یونیک
         function cleanVersion(tag) {
           return tag.replace(/^v/i, "").split("-")[0];
         }
