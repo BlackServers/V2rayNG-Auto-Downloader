@@ -71,16 +71,10 @@
     }
 
     .card {
-      background-color: #222;
+      background-color: #1e1e2f;
       border-radius: var(--border-radius);
       box-shadow: var(--shadow);
       overflow: hidden;
-    }
-
-    .card-header,
-    .card-body,
-    .card-footer {
-      background-color: #222;
     }
 
     .card-header {
@@ -88,27 +82,30 @@
       text-align: center;
       border-bottom: 1px solid #33334d;
       position: relative;
-      color: var(--primary-color);
     }
 
     .card-header h1 {
       font-size: 1.5rem;
       font-weight: 700;
+      color: var(--primary-color);
       margin: 0;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 0.5rem;
-      color: var(--primary-color);
+    }
+
+    .card-header h1 i {
+      font-size: 1.3em;
     }
 
     .card-body {
       padding: 2rem;
-      color: var(--text-color);
     }
 
     .card-footer {
       padding: 1rem 1.5rem;
+      background-color: #222233;
       text-align: center;
       font-size: 0.875rem;
       color: var(--light-text);
@@ -162,7 +159,7 @@
       max-width: 300px;
       margin: 0 auto 1.5rem;
       padding: 0.875rem 1.5rem;
-      background-color: #222;
+      background-color: var(--primary-color);
       color: white;
       border: none;
       border-radius: 9999px;
@@ -178,8 +175,9 @@
     }
 
     .download-btn:hover {
-      background-color: #333;
-      color: white;
+      color: #ccc;
+      text-decoration: none;
+      background-color: var(--primary-hover);
       transform: translateY(-2px);
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3),
         0 2px 4px -1px rgba(0, 0, 0, 0.2);
@@ -441,7 +439,7 @@
 
     <div class="card">
       <div class="card-header">
-        <h1>دانلود آخرین نسخه v2rayNG</h1>
+        <h1><i class="fas fa-rocket"></i> دانلود آخرین نسخه v2rayNG</h1>
       </div>
       <div class="card-body" id="content">
         <div class="loading">
@@ -451,8 +449,8 @@
       </div>
       <div class="card-footer">
         <div>
-          نوشته شده توسط <a href="https://t.me/dvhost_cloud" target="_blank"
-            >DVHOST.CLOUD</a
+          نوشته شده توسط <a href="https://t.me/blackservers" target="_blank"
+            >Black Servers</a
           >
         </div>
         <div>
@@ -608,12 +606,9 @@
                 </span>
                 <span class="accordion-icon"><i class="fas fa-chevron-down"></i></span>
               </div>
-              <div class="accordion-content">${notes
-                .replace(/\n/g, "<br>")
-                .replace(/# /g, "<strong>")
-                .replace(/## /g, "<strong>")
-                .replace(/\*\*/g, "<b>")
-                .replace(/`/g, "<code>")}</div>
+              <div class="accordion-content">
+                <div class="accordion-body">${notes}</div>
+              </div>
             </div>
           </div>
         `;
@@ -623,56 +618,133 @@
     }
 
     function renderReleaseInfo(version, downloadUrl, notes, allReleases) {
-      let content = `
+      let html = `
         <div class="text-center">
           <div class="version-badge">
             <i class="fas fa-tag"></i>
             نسخه ${version}
           </div>
         </div>
-        
-        <div class="text-center" style="margin-bottom: 1rem;">
-          <a href="${downloadUrl}" class="download-btn" download>
-            <i class="fas fa-download"></i>
-            دانلود مستقیم آخرین نسخه (${version})
+
+        <div class="dropdown">
+          <button class="dropdown-btn" id="versionSelectBtn" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="versionSelectLabel">
+            <i class="fas fa-angle-down"></i> انتخاب نسخه دیگر
+          </button>
+          <div class="dropdown-content" id="versionList" role="listbox" tabindex="-1" aria-label="لیست نسخه‌ها">
+      `;
+
+      // فقط نسخه‌های پایدار منحصربه‌فرد
+      const stableUniqueVersions = [];
+      const seen = new Set();
+      for (const release of allReleases) {
+        if (!release.prerelease) {
+          const cleanTag = release.tag_name.replace(/^v/i, "").split("-")[0];
+          if (!seen.has(cleanTag)) {
+            seen.add(cleanTag);
+            stableUniqueVersions.push(release);
+          }
+        }
+      }
+
+      stableUniqueVersions.forEach((release) => {
+        const tag = release.tag_name;
+        const asset = release.assets.find((a) =>
+          a.name.includes("universal.apk")
+        );
+        if (!asset) return;
+        const isActive = tag === version;
+        html += `
+          <a href="?version=${tag}" role="option" aria-selected="${isActive}" tabindex="${isActive ? 0 : -1}">
+            ${tag} ${isActive ? "✔️" : ""}
           </a>
+        `;
+      });
+
+      html += `
+          </div>
+        </div>
+
+        <div class="text-center" style="margin: 1.5rem 0;">
+          <a href="${downloadUrl}" class="download-btn" download>
+            <i class="fas fa-download"></i> دانلود مستقیم نسخه ${version}
+          </a>
+        </div>
+
+        <div class="countdown" id="countdown">
+          دانلود بعد از <span id="timer">30</span> ثانیه فعال می‌شود.
+        </div>
+
+        <div class="accordion">
+          <div class="accordion-item">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+              <span class="accordion-title">
+                <i class="fas fa-clipboard-list"></i>
+                مشاهده تغییرات نسخه ${version}
+              </span>
+              <span class="accordion-icon"><i class="fas fa-chevron-down"></i></span>
+            </div>
+            <div class="accordion-content">
+              <div class="accordion-body">${notes}</div>
+            </div>
+          </div>
         </div>
       `;
 
-      if (notes) {
-        content += `
-          <div class="accordion">
-            <div class="accordion-item">
-              <div class="accordion-header" onclick="toggleAccordion(this)">
-                <span class="accordion-title">
-                  <i class="fas fa-clipboard-list"></i>
-                  مشاهده تغییرات نسخه ${version}
-                </span>
-                <span class="accordion-icon"><i class="fas fa-chevron-down"></i></span>
-              </div>
-              <div class="accordion-content">${notes
-                .replace(/\n/g, "<br>")
-                .replace(/# /g, "<strong>")
-                .replace(/## /g, "<strong>")
-                .replace(/\*\*/g, "<b>")
-                .replace(/`/g, "<code>")}</div>
-            </div>
-          </div>
-        `;
-      }
+      document.getElementById("content").innerHTML = html;
 
-      document.getElementById("content").innerHTML = content;
+      // دکمه نسخه‌ها و لیست نسخه‌ها
+      const dropdownBtn = document.querySelector(".dropdown-btn");
+      const dropdownContent = document.querySelector(".dropdown-content");
+
+      dropdownBtn.addEventListener("click", () => {
+        const isShown = dropdownContent.classList.toggle("show");
+        dropdownBtn.setAttribute("aria-expanded", isShown);
+        if (isShown) {
+          dropdownContent.focus();
+        }
+      });
+
+      // بستن منو اگر بیرون کلیک شد
+      window.addEventListener("click", (e) => {
+        if (
+          !dropdownBtn.contains(e.target) &&
+          !dropdownContent.contains(e.target)
+        ) {
+          dropdownContent.classList.remove("show");
+          dropdownBtn.setAttribute("aria-expanded", false);
+        }
+      });
+
+      // تایمر فعال شدن دکمه دانلود
+      let timer = 30;
+      const timerSpan = document.getElementById("timer");
+      const downloadBtn = document.querySelector(".download-btn");
+
+      downloadBtn.style.pointerEvents = "none";
+      downloadBtn.style.opacity = "0.6";
+
+      const interval = setInterval(() => {
+        timer--;
+        if (timer <= 0) {
+          clearInterval(interval);
+          timerSpan.textContent = "0";
+          downloadBtn.style.pointerEvents = "auto";
+          downloadBtn.style.opacity = "1";
+          document.getElementById("countdown").style.display = "none";
+        } else {
+          timerSpan.textContent = timer;
+        }
+      }, 1000);
     }
 
-    // توابع آکاردئون
     function toggleAccordion(header) {
       const item = header.parentElement;
       const isActive = item.classList.contains("active");
 
-      // بستن همه
-      document.querySelectorAll(".accordion-item").forEach((el) => {
-        el.classList.remove("active");
-      });
+      // فقط یک آکاردئون باز باشد
+      document
+        .querySelectorAll(".accordion-item.active")
+        .forEach((el) => el.classList.remove("active"));
 
       if (!isActive) {
         item.classList.add("active");
