@@ -16,9 +16,418 @@
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
   />
   <style>
-    /* ...کد CSS مشابه قبل (حجم بالا حذف شد برای اختصار) */
-    /* فقط بخش مرتبط با آکاردئون و dropdown که از قبل بود */
-    /* اطمینان از اینکه آکاردئون بسته است پیش‌فرض و با کلیک باز شود */
+    :root {
+      --primary-color: #4f46e5;
+      --primary-hover: #4338ca;
+      --secondary-color: #f3f4f6;
+      --text-color: #fff;
+      --light-text: #a5acc7;
+      --success-color: #10b981;
+      --danger-color: #ef4444;
+      --border-radius: 12px;
+      --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.7),
+        0 4px 6px -2px rgba(0, 0, 0, 0.5);
+      --background-color: #121212;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Vazirmatn", system-ui, -apple-system, sans-serif;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .logo-container {
+      background-color: #222;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .logo-container img {
+      max-width: 150px;
+      height: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 0 2px var(--primary-color));
+    }
+
+    .card {
+      background-color: #1e1e2f;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 1.5rem;
+      text-align: center;
+      border-bottom: 1px solid #33334d;
+      position: relative;
+    }
+
+    .card-header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .card-header h1 i {
+      font-size: 1.3em;
+    }
+
+    .card-body {
+      padding: 2rem;
+    }
+
+    .card-footer {
+      padding: 1rem 1.5rem;
+      background-color: #222233;
+      text-align: center;
+      font-size: 0.875rem;
+      color: var(--light-text);
+      border-top: 1px solid #33334d;
+    }
+
+    .loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 0;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(79, 70, 229, 0.2);
+      border-radius: 50%;
+      border-top-color: var(--primary-color);
+      animation: spin 1s ease-in-out infinite;
+      margin-bottom: 1rem;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .version-badge {
+      display: inline-flex;
+      align-items: center;
+      background-color: #2a2a42;
+      color: var(--primary-color);
+      font-weight: 600;
+      padding: 0.5rem 1.25rem;
+      border-radius: 9999px;
+      margin-bottom: 1.5rem;
+      font-size: 1.1rem;
+      border: 1px solid #444466;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+
+    .download-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      max-width: 300px;
+      margin: 0 auto 1.5rem;
+      padding: 0.875rem 1.5rem;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 9999px;
+      font-size: 1rem;
+      font-weight: 600;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+      gap: 0.5rem;
+    }
+
+    .download-btn:hover {
+      color: #ccc;
+      text-decoration: none;
+      background-color: var(--primary-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3),
+        0 2px 4px -1px rgba(0, 0, 0, 0.2);
+    }
+
+    .countdown {
+      text-align: center;
+      color: var(--light-text);
+      font-size: 0.875rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.3rem;
+    }
+
+    .countdown span {
+      color: var(--danger-color);
+      font-weight: 600;
+    }
+
+    .alert {
+      padding: 1rem;
+      border-radius: var(--border-radius);
+      margin-bottom: 1rem;
+      text-align: center;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .alert i {
+      font-size: 1.2em;
+    }
+
+    .alert-danger {
+      background-color: #4f1b1b;
+      color: #f87171;
+      border: 1px solid #fca5a5;
+    }
+
+    .alert-success {
+      background-color: #064e3b;
+      color: #a7f3d0;
+      border: 1px solid #6ee7b7;
+    }
+
+    a {
+      color: var(--primary-color);
+      text-decoration: none;
+      transition: color 0.2s ease;
+      font-weight: 500;
+    }
+
+    a:hover {
+      color: var(--primary-hover);
+      text-decoration: underline;
+    }
+
+    /* Dropdown Styles */
+    .dropdown {
+      position: relative;
+      width: 100%;
+      margin: 1.5rem 0 0 0;
+    }
+
+    .dropdown-btn {
+      width: 100%;
+      padding: 0.875rem 1.5rem;
+      background-color: #2a2a42;
+      color: var(--primary-color);
+      border: 1px solid var(--primary-color);
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-family: inherit;
+    }
+
+    .dropdown-btn:hover {
+      background-color: #393955;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #1e1e2f;
+      width: 100%;
+      max-height: 300px;
+      overflow-y: auto;
+      box-shadow: var(--shadow);
+      border-radius: var(--border-radius);
+      z-index: 10;
+      margin-top: 0.5rem;
+      border: 1px solid #33334d;
+      direction: rtl;
+    }
+
+    .dropdown-content.show {
+      display: block;
+    }
+
+    .dropdown-content a {
+      color: var(--text-color);
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      text-align: right;
+      border-bottom: 1px solid #33334d;
+      transition: background-color 0.2s ease;
+      cursor: pointer;
+    }
+
+    .dropdown-content a:hover,
+    .dropdown-content a:focus {
+      background-color: var(--primary-color);
+      color: #fff;
+      outline: none;
+    }
+
+    /* Accordion Styles */
+    .accordion {
+      margin-top: 1.5rem;
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+      background-color: #2a2a42;
+    }
+
+    .accordion-item {
+      border-bottom: 1px solid #33334d;
+    }
+
+    .accordion-item:last-child {
+      border-bottom: none;
+    }
+
+    .accordion-header {
+      padding: 1rem 1.5rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background-color 0.2s ease;
+      user-select: none;
+    }
+
+    .accordion-header:hover {
+      background-color: #3b3b65;
+    }
+
+    .accordion-title {
+      font-weight: 600;
+      color: var(--primary-color);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .accordion-icon {
+      transition: transform 0.3s ease;
+      font-size: 0.9em;
+      color: var(--primary-color);
+    }
+
+    .accordion-item.active .accordion-icon {
+      transform: rotate(180deg);
+    }
+
+    .accordion-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease, padding 0.3s ease;
+      background-color: #1e1e2f;
+      color: var(--light-text);
+      direction: ltr;
+      font-size: 0.9rem;
+      white-space: pre-wrap;
+      padding: 0 1.5rem;
+    }
+
+    .accordion-item.active .accordion-content {
+      max-height: 500px;
+      padding: 1rem 1.5rem;
+    }
+
+    /* Footer Links */
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 0.5rem;
+      color: var(--light-text);
+    }
+
+    .footer-links a {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      color: var(--light-text);
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      body {
+        padding: 1rem 0.5rem;
+      }
+
+      .container {
+        max-width: 100%;
+        padding: 0 1rem;
+      }
+
+      .card-body {
+        padding: 1.5rem 1rem;
+      }
+
+      .download-btn {
+        max-width: 100%;
+        font-size: 0.9rem;
+        padding: 0.75rem 1rem;
+      }
+
+      .dropdown-btn {
+        font-size: 0.9rem;
+        padding: 0.75rem 1rem;
+      }
+
+      .version-badge {
+        font-size: 1rem;
+        padding: 0.4rem 1rem;
+      }
+
+      .accordion-header {
+        padding: 0.75rem 1rem;
+      }
+
+      .accordion-content {
+        font-size: 0.85rem;
+        padding: 0 1rem;
+      }
+    }
   </style>
 </head>
 
@@ -58,7 +467,7 @@
   </div>
 
   <script>
-    // تابع استخراج پارامترهای URL
+    // استخراج پارامتر URL
     function getUrlParameter(name) {
       name = name.replace(/[\[\]]/g, "\\$&");
       const regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)");
@@ -68,14 +477,14 @@
       return decodeURIComponent(results[2].replace(/\+/g, " "));
     }
 
-    // تشخیص معماری CPU گوشی (ساده)
+    // تشخیص معماری CPU گوشی
     function detectArch() {
       const ua = navigator.userAgent.toLowerCase();
       if (ua.includes("arm64") || ua.includes("aarch64")) return "arm64";
       if (ua.includes("arm")) return "arm";
       if (ua.includes("x86_64") || ua.includes("wow64")) return "x86_64";
       if (ua.includes("x86")) return "x86";
-      return "universal"; // پیش‌فرض
+      return "universal";
     }
 
     async function fetchReleases() {
@@ -99,22 +508,18 @@
           );
 
           if (requestedRelease) {
-            // پیدا کردن لینک دانلود متناسب با معماری
             const arch = detectArch();
             let downloadUrl = "";
 
             if (requestedRelease.assets) {
-              // اول سعی کن فایل مرتبط با معماری پیدا کنی
               let asset = requestedRelease.assets.find(a => a.name.toLowerCase().includes(arch) && a.name.endsWith(".apk"));
               if (!asset) {
-                // اگر نبود فایل universal.apk
                 asset = requestedRelease.assets.find(a => a.name.includes("universal.apk"));
               }
               if (asset) downloadUrl = asset.browser_download_url;
             }
 
             if (!downloadUrl) {
-              // اگر لینک دانلود پیدا نشد، نمایش خطا
               document.getElementById("content").innerHTML = `
                 <div class="alert alert-danger">
                   <i class="fas fa-exclamation-circle"></i>
@@ -146,7 +551,6 @@
           return;
         }
 
-        // نسخه‌های پایدار و یونیک
         function cleanVersion(tag) {
           return tag.replace(/^v/i, "").split("-")[0];
         }
@@ -169,7 +573,6 @@
         const latestVersion = latestRelease.tag_name;
         const releaseNotes = latestRelease.body;
 
-        // پیدا کردن لینک دانلود متناسب با معماری CPU گوشی
         const arch = detectArch();
         let universalDownloadUrl = "";
         if (latestRelease.assets) {
@@ -183,9 +586,6 @@
         }
 
         renderReleaseInfo(latestVersion, universalDownloadUrl, releaseNotes, releases);
-
-        // خودکار دانلود آخرین نسخه بعد از تایمر
-        startAutoDownload(universalDownloadUrl);
 
       } catch (error) {
         document.getElementById("content").innerHTML = `
@@ -222,14 +622,14 @@
         content += `
           <div class="accordion">
             <div class="accordion-item">
-              <div class="accordion-header" onclick="toggleAccordion(this)">
+              <div class="accordion-header" onclick="toggleAccordion(this)" role="button" tabindex="0" aria-expanded="false" aria-controls="changes-content">
                 <span class="accordion-title">
                   <i class="fas fa-clipboard-list"></i>
                   مشاهده تغییرات نسخه ${version}
                 </span>
                 <span class="accordion-icon"><i class="fas fa-chevron-down"></i></span>
               </div>
-              <div class="accordion-content">
+              <div class="accordion-content" id="changes-content" aria-hidden="true">
                 <div class="accordion-body">${notes}</div>
               </div>
             </div>
@@ -238,9 +638,6 @@
       }
 
       document.getElementById("content").innerHTML = content;
-
-      // از ابتدا آکاردئون بسته است (نکته مهم)
-      // پس نیاز به اضافه کردن کلاس فعال نیست
     }
 
     function renderReleaseInfo(version, downloadUrl, notes, allReleases) {
@@ -253,13 +650,12 @@
         </div>
 
         <div class="dropdown">
-          <button class="dropdown-btn" id="versionSelectBtn" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="versionSelectLabel">
+          <button class="dropdown-btn" id="versionSelectBtn" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="versionSelectLabel" type="button">
             <i class="fas fa-angle-down"></i> انتخاب نسخه دیگر
           </button>
           <div class="dropdown-content" id="versionList" role="listbox" tabindex="-1" aria-label="لیست نسخه‌ها">
       `;
 
-      // فقط نسخه‌های پایدار منحصربه‌فرد
       const stableUniqueVersions = [];
       const seen = new Set();
       for (const release of allReleases) {
@@ -291,7 +687,7 @@
         </div>
 
         <div class="text-center" style="margin: 1.5rem 0;">
-          <a href="${downloadUrl}" class="download-btn" download>
+          <a href="${downloadUrl}" class="download-btn disabled" download aria-disabled="true">
             <i class="fas fa-download"></i> دانلود مستقیم نسخه ${version}
           </a>
         </div>
@@ -302,14 +698,14 @@
 
         <div class="accordion">
           <div class="accordion-item">
-            <div class="accordion-header" onclick="toggleAccordion(this)">
+            <div class="accordion-header" onclick="toggleAccordion(this)" role="button" tabindex="0" aria-expanded="false" aria-controls="changes-content-main">
               <span class="accordion-title">
                 <i class="fas fa-clipboard-list"></i>
                 مشاهده تغییرات نسخه ${version}
               </span>
               <span class="accordion-icon"><i class="fas fa-chevron-down"></i></span>
             </div>
-            <div class="accordion-content">
+            <div class="accordion-content" id="changes-content-main" aria-hidden="true">
               <div class="accordion-body">${notes}</div>
             </div>
           </div>
@@ -318,9 +714,12 @@
 
       document.getElementById("content").innerHTML = html;
 
-      // دکمه نسخه‌ها و لیست نسخه‌ها
+      // منوی نسخه‌ها (dropdown)
       const dropdownBtn = document.querySelector(".dropdown-btn");
       const dropdownContent = document.querySelector(".dropdown-content");
+      const downloadBtn = document.querySelector(".download-btn");
+      const timerSpan = document.getElementById("timer");
+      let timer = 30;
 
       dropdownBtn.addEventListener("click", () => {
         const isShown = dropdownContent.classList.toggle("show");
@@ -330,7 +729,6 @@
         }
       });
 
-      // بستن منو اگر کلیک بیرون بود
       window.addEventListener("click", (e) => {
         if (
           !dropdownBtn.contains(e.target) &&
@@ -342,51 +740,54 @@
       });
 
       // تایمر فعال شدن دکمه دانلود
-      let timer = 30;
-      const timerSpan = document.getElementById("timer");
-      const downloadBtn = document.querySelector(".download-btn");
-
       downloadBtn.style.pointerEvents = "none";
       downloadBtn.style.opacity = "0.6";
+      downloadBtn.setAttribute("aria-disabled", "true");
 
       const interval = setInterval(() => {
         timer--;
+        timerSpan.textContent = timer;
         if (timer <= 0) {
           clearInterval(interval);
           timerSpan.textContent = "0";
           downloadBtn.style.pointerEvents = "auto";
           downloadBtn.style.opacity = "1";
+          downloadBtn.classList.remove("disabled");
+          downloadBtn.setAttribute("aria-disabled", "false");
           document.getElementById("countdown").style.display = "none";
-          // شروع دانلود خودکار
           if (downloadUrl) {
-            window.location.href = downloadUrl;
+            window.location.href = downloadUrl; // شروع خودکار دانلود
           }
-        } else {
-          timerSpan.textContent = timer;
         }
       }, 1000);
     }
 
-    // باز/بسته کردن آکاردئون (فقط یک آکاردئون باز می‌ماند)
+    // باز و بسته کردن آکاردئون
     function toggleAccordion(header) {
       const item = header.parentElement;
+      const content = item.querySelector(".accordion-content");
       const isActive = item.classList.contains("active");
+      const expanded = header.getAttribute("aria-expanded") === "true";
 
-      // فقط یک آکاردئون باز باشد
-      document
-        .querySelectorAll(".accordion-item.active")
-        .forEach((el) => el.classList.remove("active"));
-
-      if (!isActive) {
+      if (isActive) {
+        item.classList.remove("active");
+        content.setAttribute("aria-hidden", "true");
+        header.setAttribute("aria-expanded", "false");
+      } else {
+        // اگر می‌خواهی فقط یک آکاردئون باز باشد، این کد را فعال کن:
+        /*
+        document
+          .querySelectorAll(".accordion-item.active")
+          .forEach(el => {
+            el.classList.remove("active");
+            el.querySelector(".accordion-content").setAttribute("aria-hidden", "true");
+            el.querySelector(".accordion-header").setAttribute("aria-expanded", "false");
+          });
+        */
         item.classList.add("active");
+        content.setAttribute("aria-hidden", "false");
+        header.setAttribute("aria-expanded", "true");
       }
-    }
-
-    // شروع دانلود خودکار برای نسخه اصلی
-    function startAutoDownload(url) {
-      if (!url) return;
-      // این تابع در renderReleaseInfo صدا زده شده و تایمر شروع میشود
-      // اگر بخواهی می‌توانی این تابع را جدا کنی، من در renderReleaseInfo قرار دادم که ساده‌تر باشد.
     }
 
     fetchReleases();
