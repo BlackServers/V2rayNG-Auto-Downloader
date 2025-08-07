@@ -753,6 +753,329 @@
 
     fetchReleases();
   </script>
+
+  <!-- ========================= ENHANCEMENTS (افزوده شده) ========================= -->
+  <!--
+    توضیح: پایین کد اصلی را حذف نکردم — فقط توابع مهم را دوباره تعریف کردم تا قابلیت‌های زیر به آن اضافه شود:
+    - پشتیبانی از Markdown با marked.js
+    - Fallback انتخاب بزرگ‌ترین APK اگر universal.apk وجود نداشت
+    - گزینه پراکسی برای مواقعی که GitHub توسط شبکه فیلتر شده
+    - رندر بهتر Notes و بهبود رفتار آکاردئون در موبایل
+  -->
+
+  <!-- کتابخانه marked.js برای رندر Markdown -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+
+  <script>
+    // ---- پیکربندی: اگر نیاز به پراکسی برای دور زدن فیلترینگ داری، مقدار زیر را بنویس
+    // مثال: const GITHUB_API_PROXY = "https://api.allorigins.win/raw?url=";
+    // یا آدرس پراکسی خودت: const GITHUB_API_PROXY = "https://my-proxy.example.com/?url=";
+    const GITHUB_API_PROXY = ""; // اگر خالی باشد مستقیم به GitHub وصل می‌شود
+
+    // helper برای fetch با پشتیبانی از پراکسی (در صورت تنظیم)
+    async function fetchWithOptionalProxy(url, opts) {
+      const finalUrl = GITHUB_API_PROXY ? GITHUB_API_PROXY + encodeURIComponent(url) : url;
+      const resp = await fetch(finalUrl, opts);
+      if (!resp.ok) throw new Error(`خطا در دریافت اطلاعات از GitHub: ${resp.status}`);
+      // اگر از allorigins یا پراکسی مشابه استفاده کنی، ممکنه نیاز باشه json() روی بدنه اصلی اجرا کنی
+      // اما برای api.github.com پاسخ مستقیم JSON است.
+      return await resp.json();
+    }
+
+    // تابع جایگزین برای انتخاب لینک دانلود با fallback
+    function getDownloadUrlWithFallback(release) {
+      // اول تلاش کن universal.apk را پیدا کنی
+      if (!release || !release.assets) return "";
+      const universal = release.assets.find(a => a.name.toLowerCase().includes('universal.apk'));
+      if (universal) return universal.browser_download_url;
+
+      // اگر universal نبود، همه APK ها را بگیر و بزرگ‌ترینشان را انتخاب کن
+      const apkAssets = release.assets.filter(a => a.name.toLowerCase().endsWith('.apk'));
+      if (apkAssets.length === 0) return "";
+      apkAssets.sort((a, b) => (b.size || 0) - (a.size || 0));
+      return apkAssets[0].browser_download_url;
+    }
+
+    // بازنویسی تابع fetchReleases — بدون حذف نسخهٔ اصلی، فقط جایگزین تعریف می‌کنیم
+    async function fetchReleases() {
+      try {
+        const releases = await fetchWithOptionalProxy('https://api.github.com/repos/2dust/v2rayNG/releases');
+
+        if (!releases || releases.length === 0) {
+          throw new Error('هیچ ریلیزی یافت نشد');
+        }
+
+        const requestedVersion = getUrlParameter('version');
+        if (requestedVersion) {
+          const requestedRelease = releases.find((release) => release.tag_name.includes(requestedVersion));
+
+          if (requestedRelease) {
+            const universalDownloadUrl = getDownloadUrlWithFallback(requestedRelease);
+            if (universalDownloadUrl) {
+              renderRequestedVersion(requestedRelease.tag_name, universalDownloadUrl, requestedRelease.body);
+              return;
+            }
+          }
+
+          document.getElementById('content').innerHTML = `\
+            <div class="alert alert-danger">\
+              <i class="fas fa-exclamation-circle"></i>\
+              نسخه درخواستی (${requestedVersion}) یافت نشد یا فایل دانلود موجود نیست.\
+            </div>\
+            <div class="text-center" style="margin-top: 1rem;">\
+              <a href="${window.location.pathname}" class="download-btn">\
+                <i class="fas fa-arrow-left"></i> بازگشت به صفحه اصلی\
+              </a>\
+            </div>\
+          `;
+          return;
+        }
+
+        // نسخه‌های پایدار و یونیک
+        function cleanVersion(tag) {
+          return tag.replace(/^v/i, '').split('-')[0];
+        }
+
+        const seenVersions = new Set();
+        const stableReleases = releases.filter((release) => {
+          const cleanTag = cleanVersion(release.tag_name);
+          if (seenVersions.has(cleanTag)) return false;
+          seenVersions.add(cleanTag);
+          return !release.prerelease;
+        });
+
+        if (stableReleases.length === 0) throw new Error('هیچ نسخه پایدار یافت نشد');
+
+        const latestRelease = stableReleases[0];
+        const latestVersion = latestRelease.tag_name;
+        const releaseNotes = latestRelease.body;
+
+        const universalDownloadUrl = getDownloadUrlWithFallback(latestRelease);
+
+        renderReleaseInfo(latestVersion, universalDownloadUrl, releaseNotes, releases);
+      } catch (error) {
+        document.getElementById('content').innerHTML = `\
+          <div class="alert alert-danger">\
+            <i class="fas fa-exclamation-circle"></i> ${error.message}\
+          </div>\
+        `;
+      }
+    }
+
+    // بازنویسی renderRequestedVersion برای رندر Markdown
+    function renderRequestedVersion(version, downloadUrl, notes) {
+      let renderedNotes = '';
+      if (notes) {
+        try {
+          renderedNotes = marked.parse(notes);
+        } catch (e) {
+          renderedNotes = notes;
+        }
+      }
+
+      let content = `\
+        <div class="text-center">\
+          <div class="version-badge">\
+            <i class="fas fa-tag"></i>\
+            نسخه ${version}\
+          </div>\
+        </div>\
+        \
+        <div class="alert alert-success">\
+          <i class="fas fa-check-circle"></i>\
+          در حال هدایت به دانلود نسخه درخواستی...\
+        </div>\
+        \
+        <div class="text-center" style="margin-top: 1rem;">\
+          <a href="${downloadUrl}" class="download-btn" download>\
+            <i class="fas fa-download"></i>\
+            دانلود مستقیم نسخه ${version}\
+          </a>\
+        </div>\
+      `;
+
+      if (renderedNotes) {
+        content += `\
+          <div class="accordion">\
+            <div class="accordion-item">\
+              <div class="accordion-header" onclick="toggleAccordion(this)">\
+                <span class="accordion-title">\
+                  <i class="fas fa-clipboard-list"></i>\
+                  مشاهده تغییرات نسخه ${version}\
+                </span>\
+                <span class="accordion-icon"><i class="fas fa-chevron-down"></i></span>\
+              </div>\
+              <div class="accordion-content">\
+                <div class="accordion-body">${renderedNotes}</div>\
+              </div>\
+            </div>\
+          </div>\
+        `;
+      }
+
+      document.getElementById('content').innerHTML = content;
+    }
+
+    // بازنویسی renderReleaseInfo برای استفاده از marked در notes و fallback در لیست نسخه‌ها
+    function renderReleaseInfo(version, downloadUrl, notes, allReleases) {
+      const renderedNotes = notes ? (function(){ try{ return marked.parse(notes); }catch(e){return notes;} })() : '';
+
+      let html = `\
+        <div class="text-center">\
+          <div class="version-badge">\
+            <i class="fas fa-tag"></i>\
+            نسخه ${version}\
+          </div>\
+        </div>\
+
+        <div class="dropdown">\
+          <button class="dropdown-btn" id="versionSelectBtn" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="versionSelectLabel">\
+            <i class="fas fa-angle-down"></i> انتخاب نسخه دیگر\
+          </button>\
+          <div class="dropdown-content" id="versionList" role="listbox" tabindex="-1" aria-label="لیست نسخه‌ها">\
+      `;
+
+      // فقط نسخه‌های پایدار منحصربه‌فرد
+      const stableUniqueVersions = [];
+      const seen = new Set();
+      for (const release of allReleases) {
+        if (!release.prerelease) {
+          const cleanTag = release.tag_name.replace(/^v/i, '').split('-')[0];
+          if (!seen.has(cleanTag)) {
+            seen.add(cleanTag);
+            stableUniqueVersions.push(release);
+          }
+        }
+      }
+
+      stableUniqueVersions.forEach((release) => {
+        const tag = release.tag_name;
+        const asset = release.assets.find((a) => a.name.toLowerCase().endsWith('.apk'));
+        if (!asset) return;
+        const isActive = tag === version;
+        html += `\
+          <a href="?version=${tag}" role="option" aria-selected="${isActive}" tabindex="${isActive ? 0 : -1}">\
+            ${tag} ${isActive ? "✔️" : ""}\
+          </a>\
+        `;
+      });
+
+      html += `\
+          </div>\
+        </div>\
+
+        <div class="text-center" style="margin: 1.5rem 0;">\
+          <a href="${downloadUrl}" class="download-btn" download>\
+            <i class="fas fa-download"></i> دانلود مستقیم نسخه ${version}\
+          </a>\
+        </div>\
+
+        <div class="countdown" id="countdown">\
+          دانلود بعد از <span id="timer">30</span> ثانیه فعال می‌شود.\
+        </div>\
+
+        <div class="accordion">\
+          <div class="accordion-item">\
+            <div class="accordion-header" onclick="toggleAccordion(this)">\
+              <span class="accordion-title">\
+                <i class="fas fa-clipboard-list"></i>\
+                مشاهده تغییرات نسخه ${version}\
+              </span>\
+              <span class="accordion-icon"><i class="fas fa-chevron-down"></i></span>\
+            </div>\
+            <div class="accordion-content">\
+              <div class="accordion-body">${renderedNotes}</div>\
+            </div>\
+          </div>\
+        </div>\
+      `;
+
+      document.getElementById('content').innerHTML = html;
+
+      // دکمه نسخه‌ها و لیست نسخه‌ها
+      const dropdownBtn = document.querySelector('.dropdown-btn');
+      const dropdownContent = document.querySelector('.dropdown-content');
+
+      dropdownBtn.addEventListener('click', () => {
+        const isShown = dropdownContent.classList.toggle('show');
+        dropdownBtn.setAttribute('aria-expanded', isShown);
+        if (isShown) dropdownContent.focus();
+      });
+
+      // بستن منو اگر بیرون کلیک شد
+      window.addEventListener('click', (e) => {
+        if (!dropdownBtn.contains(e.target) && !dropdownContent.contains(e.target)) {
+          dropdownContent.classList.remove('show');
+          dropdownBtn.setAttribute('aria-expanded', false);
+        }
+      });
+
+      // تایمر فعال شدن دکمه دانلود
+      let timer = 30;
+      const timerSpan = document.getElementById('timer');
+      const downloadBtn = document.querySelector('.download-btn');
+
+      // اگر لینک دانلود خالی بود دکمه را غیرفعال کن
+      if (!downloadBtn || !downloadBtn.getAttribute('href')) {
+        if (downloadBtn) {
+          downloadBtn.style.pointerEvents = 'none';
+          downloadBtn.style.opacity = '0.6';
+        }
+        return;
+      }
+
+      downloadBtn.style.pointerEvents = 'none';
+      downloadBtn.style.opacity = '0.6';
+
+      const interval = setInterval(() => {
+        timer--;
+        if (timer <= 0) {
+          clearInterval(interval);
+          timerSpan.textContent = '0';
+          downloadBtn.style.pointerEvents = 'auto';
+          downloadBtn.style.opacity = '1';
+          document.getElementById('countdown').style.display = 'none';
+        } else {
+          timerSpan.textContent = timer;
+        }
+      }, 1000);
+
+      // بهتر کردن رفتار آکاردئون برای موبایل: زمانی که باز می‌شود به auto height تغییر بده
+      document.querySelectorAll('.accordion-header').forEach(h => {
+        h.addEventListener('click', () => {
+          const contentEl = h.nextElementSibling;
+          if (!contentEl) return;
+          if (contentEl.style.maxHeight && contentEl.style.maxHeight !== '0px') {
+            contentEl.style.maxHeight = null;
+          } else {
+            contentEl.style.maxHeight = contentEl.scrollHeight + 'px';
+          }
+        });
+      });
+    }
+
+    // بازنویسی toggleAccordion تا هماهنگ با تغییرات جدید باشد
+    function toggleAccordion(header) {
+      const item = header.parentElement;
+      const isActive = item.classList.contains('active');
+
+      document.querySelectorAll('.accordion-item.active').forEach(el => el.classList.remove('active'));
+
+      if (!isActive) {
+        item.classList.add('active');
+        const content = item.querySelector('.accordion-content');
+        if (content) content.style.maxHeight = content.scrollHeight + 'px';
+      } else {
+        item.classList.remove('active');
+        const content = item.querySelector('.accordion-content');
+        if (content) content.style.maxHeight = null;
+      }
+    }
+
+    // دوباره فراخوانی تابع (نسخه جدید)
+    fetchReleases();
+  </script>
+
 </body>
 
 </html>
