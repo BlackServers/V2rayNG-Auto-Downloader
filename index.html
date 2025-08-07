@@ -5,12 +5,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>دانلود آخرین نسخه v2rayNG</title>
-  <!-- فونت Vazirmatn -->
   <link
     rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap"
   />
-  <!-- فونت آیکون Font Awesome -->
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -480,7 +478,17 @@
   </div>
 
   <script>
-    // تابع استخراج پارامترهای URL
+    // استخراج معماری گوشی از UA
+    function getCPUArch() {
+      const ua = navigator.userAgent.toLowerCase();
+      if (ua.includes("arm64") || ua.includes("aarch64")) return "arm64-v8a";
+      if (ua.includes("arm") || ua.includes("armeabi") || ua.includes("armv7")) return "armeabi-v7a";
+      if (ua.includes("x86_64") || ua.includes("wow64")) return "x86_64";
+      if (ua.includes("x86") || ua.includes("i686")) return "x86";
+      return "arm64-v8a"; // پیش‌فرض به arm64-v8a
+    }
+
+    // پارامترهای URL
     function getUrlParameter(name) {
       name = name.replace(/[\[\]]/g, "\\$&");
       const regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)");
@@ -490,45 +498,32 @@
       return decodeURIComponent(results[2].replace(/\+/g, " "));
     }
 
-    // دریافت اطلاعات ریلیزها از GitHub
+    // دریافت ریلیزها از GitHub
     async function fetchReleases() {
       try {
         const response = await fetch(
           "https://api.github.com/repos/2dust/v2rayNG/releases"
         );
-        if (!response.ok) {
-          throw new Error("خطا در دریافت اطلاعات از GitHub");
-        }
+        if (!response.ok) throw new Error("خطا در دریافت اطلاعات از GitHub");
         const releases = await response.json();
-
-        if (!releases || releases.length === 0) {
-          throw new Error("هیچ ریلیزی یافت نشد");
-        }
+        if (!releases || releases.length === 0) throw new Error("هیچ ریلیزی یافت نشد");
 
         const requestedVersion = getUrlParameter("version");
         if (requestedVersion) {
-          const requestedRelease = releases.find((release) =>
-            release.tag_name.includes(requestedVersion)
+          const requestedRelease = releases.find((r) =>
+            r.tag_name.includes(requestedVersion)
           );
-
           if (requestedRelease) {
-            let universalDownloadUrl = "";
-            if (requestedRelease.assets) {
-              const universalAsset = requestedRelease.assets.find((asset) =>
-                asset.name.includes("universal.apk")
+            const asset = findAssetForArch(requestedRelease.assets);
+            if (asset) {
+              renderRequestedVersion(
+                requestedRelease.tag_name,
+                asset.browser_download_url,
+                requestedRelease.body
               );
-              if (universalAsset) {
-                universalDownloadUrl = universalAsset.browser_download_url;
-                renderRequestedVersion(
-                  requestedRelease.tag_name,
-                  universalDownloadUrl,
-                  requestedRelease.body
-                );
-                return;
-              }
+              return;
             }
           }
-
           document.getElementById("content").innerHTML = `
             <div class="alert alert-danger">
               <i class="fas fa-exclamation-circle"></i>
@@ -543,40 +538,24 @@
           return;
         }
 
-        // نسخه‌های پایدار و یونیک
+        // فیلتر نسخه‌های پایدار و یکتا
         function cleanVersion(tag) {
           return tag.replace(/^v/i, "").split("-")[0];
         }
-
         const seenVersions = new Set();
         const stableReleases = releases.filter((release) => {
           const cleanTag = cleanVersion(release.tag_name);
-          if (seenVersions.has(cleanTag)) {
-            return false;
-          }
+          if (seenVersions.has(cleanTag)) return false;
           seenVersions.add(cleanTag);
           return !release.prerelease;
         });
-
-        if (stableReleases.length === 0) {
-          throw new Error("هیچ نسخه پایدار یافت نشد");
-        }
+        if (stableReleases.length === 0) throw new Error("هیچ نسخه پایدار یافت نشد");
 
         const latestRelease = stableReleases[0];
         const latestVersion = latestRelease.tag_name;
         const releaseNotes = latestRelease.body;
 
-        let universalDownloadUrl = "";
-        if (latestRelease.assets) {
-          const universalAsset = latestRelease.assets.find((asset) =>
-            asset.name.includes("universal.apk")
-          );
-          if (universalAsset) {
-            universalDownloadUrl = universalAsset.browser_download_url;
-          }
-        }
-
-        renderReleaseInfo(latestVersion, universalDownloadUrl, releaseNotes, releases);
+        renderReleaseInfo(latestRelease, stableReleases);
       } catch (error) {
         document.getElementById("content").innerHTML = `
           <div class="alert alert-danger">
@@ -586,27 +565,32 @@
       }
     }
 
-    function renderRequestedVersion(version, downloadUrl, notes) {
-      let content = `
-        <div class="text-center">
-          <div class="version-badge">
-            <i class="fas fa-tag"></i>
-            نسخه ${version}
-          </div>
+    // انتخاب فایل مناسب بر اساس معماری
+    function findAssetForArch(assets) {
+      if (!assets || assets.length === 0) return null;
+      const arch = getCPUArch();
+      // ترتیب اولویت: arm64-v8a، armeabi-v7a، universal
+      let asset =
+        assets.find((a) => a.name.includes("arm64-v8a")) ||
+        assets.find((a) => a.name.includes("armeabi-v7a")) ||
+        assets.find((a) => a.name.includes("universal.apk")) ||
+        assets[0];
+      return asset || null;
+    }
+
+    // نمایش نسخه درخواستی (یا آخرین)
+    function renderRequestedVersion(version, downloadUrl, releaseNotes) {
+      const content = `
+        <div class="version-badge" aria-live="polite" aria-atomic="true">
+          <i class="fas fa-tag"></i>
+          نسخه ${version}
         </div>
-        
-        <div class="alert alert-success">
-          <i class="fas fa-check-circle"></i>
-          در حال هدایت به دانلود نسخه درخواستی...
-        </div>
-        
-        <div class="text-center" style="margin-top: 1rem;">
-          <a href="${downloadUrl}" class="download-btn" download>
-            <i class="fas fa-download"></i>
-            دانلود مستقیم نسخه ${version}
-          </a>
-        </div>
-        
+
+        <a href="${downloadUrl}" class="download-btn" id="mainDownloadBtn" download>
+          <i class="fas fa-download"></i>
+          دانلود مستقیم نسخه ${version}
+        </a>
+
         <div class="accordion" id="releaseNotes">
           <div class="accordion-item active">
             <div class="accordion-header" tabindex="0">
@@ -617,7 +601,7 @@
               <i class="fas fa-chevron-down accordion-icon"></i>
             </div>
             <div class="accordion-content" style="max-height: 500px;">
-              <pre>${notes || "بدون توضیح"}</pre>
+              <pre>${releaseNotes || "بدون توضیح"}</pre>
             </div>
           </div>
         </div>
@@ -627,7 +611,12 @@
     }
 
     // نمایش اطلاعات نسخه آخر و منوی نسخه‌ها
-    function renderReleaseInfo(latestVersion, downloadUrl, releaseNotes, allReleases) {
+    function renderReleaseInfo(latestRelease, allReleases) {
+      const latestVersion = latestRelease.tag_name;
+      const releaseNotes = latestRelease.body;
+      const asset = findAssetForArch(latestRelease.assets);
+      const downloadUrl = asset ? asset.browser_download_url : "#";
+
       let content = `
         <div class="version-badge" aria-live="polite" aria-atomic="true">
           <i class="fas fa-tag"></i>
@@ -660,10 +649,8 @@
               .filter((release) => !release.prerelease)
               .map((release) => {
                 const version = release.tag_name;
-                const universalAsset = release.assets.find((asset) =>
-                  asset.name.includes("universal.apk")
-                );
-                const url = universalAsset ? universalAsset.browser_download_url : "#";
+                const asset = findAssetForArch(release.assets);
+                const url = asset ? asset.browser_download_url : "#";
                 return `<a href="#" role="option" data-url="${url}" data-version="${version}">${version}</a>`;
               })
               .join("")}
@@ -688,7 +675,7 @@
 
       document.getElementById("content").innerHTML = content;
 
-      // مخفی کردن دکمه دانلود اولیه و تایمر
+      // دکمه دانلود اولیه غیرفعال و تایمر فعال
       const mainDownloadBtn = document.getElementById("mainDownloadBtn");
       const countdown = document.getElementById("countdown");
       mainDownloadBtn.disabled = true;
@@ -705,10 +692,13 @@
           countdown.style.display = "none";
           mainDownloadBtn.disabled = false;
           mainDownloadBtn.style.pointerEvents = "auto";
+
+          // ریدایرکت مستقیم به لینک دانلود نسخه مناسب معماری
+          window.location.href = downloadUrl;
         }
       }, 1000);
 
-      // تنظیم dropdown نسخه‌ها
+      // تنظیم منوی نسخه‌ها (dropdown)
       setupDropdown();
 
       // تنظیم آکاردئون تغییرات نسخه
@@ -784,6 +774,7 @@
           // به‌روزرسانی تغییرات نسخه
           fetchReleaseNotes(version);
 
+          // بستن منو
           closeDropdown();
         });
       });
@@ -813,14 +804,10 @@
         const response = await fetch(
           "https://api.github.com/repos/2dust/v2rayNG/releases"
         );
-        if (!response.ok) {
-          throw new Error("خطا در دریافت تغییرات نسخه");
-        }
+        if (!response.ok) throw new Error("خطا در دریافت تغییرات نسخه");
         const releases = await response.json();
         const release = releases.find((r) => r.tag_name === version);
-        if (!release) {
-          throw new Error("تغییرات نسخه یافت نشد");
-        }
+        if (!release) throw new Error("تغییرات نسخه یافت نشد");
         const notes = release.body || "بدون توضیح";
 
         // به‌روزرسانی بخش آکاردئون
