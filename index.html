@@ -5,10 +5,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>دانلود آخرین نسخه v2rayNG</title>
+  <!-- فونت Vazirmatn -->
   <link
     rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap"
   />
+  <!-- فونت آیکون Font Awesome -->
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -18,13 +20,14 @@
       --primary-color: #4f46e5;
       --primary-hover: #4338ca;
       --secondary-color: #f3f4f6;
-      --text-color: #1f2937;
-      --light-text: #6b7280;
+      --text-color: #fff;
+      --light-text: #a5acc7;
       --success-color: #10b981;
       --danger-color: #ef4444;
       --border-radius: 12px;
-      --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
-        0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.7),
+        0 4px 6px -2px rgba(0, 0, 0, 0.5);
+      --background-color: #121212;
     }
 
     * {
@@ -35,43 +38,50 @@
 
     body {
       font-family: "Vazirmatn", system-ui, -apple-system, sans-serif;
-      background-color: #121212;
+      background-color: var(--background-color);
       color: var(--text-color);
       line-height: 1.6;
-      padding: 0;
-      margin: 0;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: flex-start;
+      padding: 2rem 1rem;
     }
 
     .container {
       width: 100%;
       max-width: 600px;
-      margin: 2rem auto;
-      padding: 0 1rem;
+      margin: 0 auto;
+    }
+
+    .logo-container {
+      background-color: #222;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .logo-container img {
+      max-width: 150px;
+      height: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 0 2px var(--primary-color));
     }
 
     .card {
-      background-color: #1e1e1e;
+      background-color: #1e1e2f;
       border-radius: var(--border-radius);
       box-shadow: var(--shadow);
       overflow: hidden;
-      color: white;
     }
 
     .card-header {
       padding: 1.5rem;
       text-align: center;
-      border-bottom: 1px solid #333;
+      border-bottom: 1px solid #33334d;
       position: relative;
-    }
-
-    .logo-img {
-      max-width: 150px;
-      margin: 0 auto 1rem auto;
-      display: block;
     }
 
     .card-header h1 {
@@ -91,16 +101,15 @@
 
     .card-body {
       padding: 2rem;
-      color: white;
     }
 
     .card-footer {
       padding: 1rem 1.5rem;
-      background-color: #2a2a2a;
+      background-color: #222233;
       text-align: center;
       font-size: 0.875rem;
       color: var(--light-text);
-      border-top: 1px solid #333;
+      border-top: 1px solid #33334d;
     }
 
     .loading {
@@ -109,7 +118,6 @@
       align-items: center;
       justify-content: center;
       padding: 2rem 0;
-      color: white;
     }
 
     .spinner {
@@ -131,16 +139,16 @@
     .version-badge {
       display: inline-flex;
       align-items: center;
-      background-color: var(--secondary-color);
+      background-color: #2a2a42;
       color: var(--primary-color);
       font-weight: 600;
       padding: 0.5rem 1.25rem;
       border-radius: 9999px;
       margin-bottom: 1.5rem;
       font-size: 1.1rem;
-      border: 1px solid #e5e7eb;
+      border: 1px solid #444466;
       gap: 0.5rem;
-      color: #4f46e5;
+      justify-content: center;
     }
 
     .download-btn {
@@ -171,8 +179,8 @@
       text-decoration: none;
       background-color: var(--primary-hover);
       transform: translateY(-2px);
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-        0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3),
+        0 2px 4px -1px rgba(0, 0, 0, 0.2);
     }
 
     .countdown {
@@ -208,15 +216,15 @@
     }
 
     .alert-danger {
-      background-color: #fee2e2;
-      color: #b91c1c;
-      border: 1px solid #fecaca;
+      background-color: #4f1b1b;
+      color: #f87171;
+      border: 1px solid #fca5a5;
     }
 
     .alert-success {
-      background-color: #d1fae5;
-      color: #065f46;
-      border: 1px solid #a7f3d0;
+      background-color: #064e3b;
+      color: #a7f3d0;
+      border: 1px solid #6ee7b7;
     }
 
     a {
@@ -241,7 +249,7 @@
     .dropdown-btn {
       width: 100%;
       padding: 0.875rem 1.5rem;
-      background-color: #292929;
+      background-color: #2a2a42;
       color: var(--primary-color);
       border: 1px solid var(--primary-color);
       border-radius: 9999px;
@@ -258,82 +266,57 @@
     }
 
     .dropdown-btn:hover {
-      background-color: #3a3a3a;
+      background-color: #393955;
     }
 
     .dropdown-content {
       display: none;
       position: absolute;
-      background-color: #292929;
+      background-color: #1e1e2f;
       width: 100%;
       max-height: 300px;
       overflow-y: auto;
       box-shadow: var(--shadow);
       border-radius: var(--border-radius);
-      z-index: 1;
+      z-index: 10;
       margin-top: 0.5rem;
-      border: 1px solid #4f46e5;
+      border: 1px solid #33334d;
       direction: rtl;
     }
 
+    .dropdown-content.show {
+      display: block;
+    }
+
     .dropdown-content a {
-      color: var(--primary-color);
+      color: var(--text-color);
       padding: 12px 16px;
       text-decoration: none;
       display: block;
       text-align: right;
-      border-bottom: 1px solid #3a3a3a;
-      transition: all 0.2s ease;
-      font-weight: 500;
+      border-bottom: 1px solid #33334d;
+      transition: background-color 0.2s ease;
+      cursor: pointer;
     }
 
-    .dropdown-content a:hover {
-      background-color: var(--primary-hover);
-      color: white;
+    .dropdown-content a:hover,
+    .dropdown-content a:focus {
+      background-color: var(--primary-color);
+      color: #fff;
+      outline: none;
     }
 
-    .show {
-      display: block;
-    }
-
-    .version-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.75rem 1rem;
-      gap: 0.5rem;
-    }
-
-    .version-tag {
-      font-weight: 600;
-      color: var(--primary-color);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .version-date {
-      font-size: 0.8rem;
-      color: var(--light-text);
-      direction: ltr;
-    }
-
-    .version-divider {
-      height: 1px;
-      background-color: #3a3a3a;
-      margin: 0.25rem 0;
-    }
-
+    /* Accordion Styles */
     .accordion {
       margin-top: 1.5rem;
       border-radius: var(--border-radius);
       overflow: hidden;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      color: white;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+      background-color: #2a2a42;
     }
 
     .accordion-item {
-      border-bottom: 1px solid #3a3a3a;
+      border-bottom: 1px solid #33334d;
     }
 
     .accordion-item:last-child {
@@ -341,17 +324,17 @@
     }
 
     .accordion-header {
-      background-color: #292929;
       padding: 1rem 1.5rem;
       cursor: pointer;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      transition: all 0.2s ease;
+      transition: background-color 0.2s ease;
+      user-select: none;
     }
 
     .accordion-header:hover {
-      background-color: #3a3a3a;
+      background-color: #3b3b65;
     }
 
     .accordion-title {
@@ -365,6 +348,7 @@
     .accordion-icon {
       transition: transform 0.3s ease;
       font-size: 0.9em;
+      color: var(--primary-color);
     }
 
     .accordion-item.active .accordion-icon {
@@ -375,21 +359,17 @@
       max-height: 0;
       overflow: hidden;
       transition: max-height 0.3s ease;
-      background-color: #1e1e1e;
-      color: #ddd;
+      background-color: #1e1e2f;
+      color: var(--light-text);
+      direction: ltr;
+      font-size: 0.9rem;
+      white-space: pre-wrap;
+      padding: 0 1.5rem;
     }
 
     .accordion-item.active .accordion-content {
       max-height: 500px;
-    }
-
-    .accordion-body {
       padding: 1rem 1.5rem;
-      font-size: 0.875rem;
-      white-space: pre-line;
-      line-height: 1.7;
-      direction: ltr;
-      color: #ddd;
     }
 
     /* Footer Links */
@@ -406,20 +386,19 @@
       align-items: center;
       gap: 0.3rem;
       color: var(--light-text);
-      text-decoration: none;
     }
   </style>
 </head>
 
 <body>
   <div class="container">
+    <div class="logo-container">
+      <img src="your-logo.png" alt="لوگو" id="logo" />
+    </div>
+
     <div class="card">
       <div class="card-header">
-        <!-- اینجا لینک لوگو را بگذار -->
-        <img src="your-logo.png" alt="لوگوی شما" class="logo-img" />
-        <h1>
-          <i class="fas fa-rocket"></i> دانلود آخرین نسخه v2rayNG
-        </h1>
+        <h1><i class="fas fa-rocket"></i> دانلود آخرین نسخه v2rayNG</h1>
       </div>
       <div class="card-body" id="content">
         <div class="loading">
@@ -429,11 +408,15 @@
       </div>
       <div class="card-footer">
         <div>
-          نوشته شده توسط <a href="https://t.me/dvhost_cloud">DVHOST.CLOUD</a>
+          نوشته شده توسط <a href="https://t.me/dvhost_cloud" target="_blank"
+            >DVHOST.CLOUD</a
+          >
         </div>
         <div>
           این صفحه آخرین نسخه را از
-          <a href="https://github.com/2dust/v2rayNG/releases" target="_blank"
+          <a
+            href="https://github.com/2dust/v2rayNG/releases"
+            target="_blank"
             >صفحه ریلیزهای GitHub</a
           >
           دریافت می‌کند
@@ -443,8 +426,9 @@
   </div>
 
   <script>
+    // تابع استخراج پارامترهای URL
     function getUrlParameter(name) {
-      name = name.replace(/[\\[]/, "\\[").replace(/[\\]]/, "\\]");
+      name = name.replace(/[\[\]]/g, "\\$&");
       const regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)");
       const results = regex.exec(window.location.href);
       if (!results) return null;
@@ -452,6 +436,7 @@
       return decodeURIComponent(results[2].replace(/\+/g, " "));
     }
 
+    // دریافت اطلاعات ریلیزها از GitHub
     async function fetchReleases() {
       try {
         const response = await fetch(
@@ -461,33 +446,35 @@
           throw new Error("خطا در دریافت اطلاعات از GitHub");
         }
         const releases = await response.json();
+
         if (!releases || releases.length === 0) {
           throw new Error("هیچ ریلیزی یافت نشد");
         }
 
-        window.allReleases = releases;
-
-        // گرفتن نسخه درخواستی از URL
         const requestedVersion = getUrlParameter("version");
-
         if (requestedVersion) {
-          // جستجوی نسخه درخواستی
           const requestedRelease = releases.find((release) =>
             release.tag_name.includes(requestedVersion)
           );
+
           if (requestedRelease) {
-            let universalAsset = requestedRelease.assets.find((asset) =>
-              asset.name.includes("universal.apk")
-            );
-            if (universalAsset) {
-              renderRequestedVersion(
-                requestedRelease.tag_name,
-                universalAsset.browser_download_url,
-                requestedRelease.body
+            let universalDownloadUrl = "";
+            if (requestedRelease.assets) {
+              const universalAsset = requestedRelease.assets.find((asset) =>
+                asset.name.includes("universal.apk")
               );
-              return;
+              if (universalAsset) {
+                universalDownloadUrl = universalAsset.browser_download_url;
+                renderRequestedVersion(
+                  requestedRelease.tag_name,
+                  universalDownloadUrl,
+                  requestedRelease.body
+                );
+                return;
+              }
             }
           }
+
           document.getElementById("content").innerHTML = `
             <div class="alert alert-danger">
               <i class="fas fa-exclamation-circle"></i>
@@ -502,24 +489,29 @@
           return;
         }
 
-        // نسخه‌های پایدار را انتخاب کن و نسخه‌های تکراری حذف شود
-        const stableReleases = [];
-        const seenVersions = new Set();
-
-        for (const release of releases) {
-          const cleanTag = release.tag_name.replace(/^v/i, "").split("-")[0];
-          if (seenVersions.has(cleanTag)) continue;
-          if (!release.prerelease) {
-            stableReleases.push(release);
-            seenVersions.add(cleanTag);
-          }
+        // نسخه‌های پایدار و یونیک
+        function cleanVersion(tag) {
+          return tag.replace(/^v/i, "").split("-")[0];
         }
+
+        const seenVersions = new Set();
+        const stableReleases = releases.filter((release) => {
+          const cleanTag = cleanVersion(release.tag_name);
+          if (seenVersions.has(cleanTag)) {
+            return false;
+          }
+          seenVersions.add(cleanTag);
+          return !release.prerelease;
+        });
 
         if (stableReleases.length === 0) {
           throw new Error("هیچ نسخه پایدار یافت نشد");
         }
 
         const latestRelease = stableReleases[0];
+        const latestVersion = latestRelease.tag_name;
+        const releaseNotes = latestRelease.body;
+
         let universalDownloadUrl = "";
         if (latestRelease.assets) {
           const universalAsset = latestRelease.assets.find((asset) =>
@@ -530,44 +522,46 @@
           }
         }
 
-        renderReleaseInfo(
-          latestRelease.tag_name,
-          universalDownloadUrl,
-          latestRelease.body,
-          releases
-        );
+        renderReleaseInfo(latestVersion, universalDownloadUrl, releaseNotes, releases);
       } catch (error) {
         document.getElementById("content").innerHTML = `
           <div class="alert alert-danger">
-            <i class="fas fa-exclamation-circle"></i>
-            ${error.message}
+            <i class="fas fa-exclamation-circle"></i> ${error.message}
           </div>
         `;
       }
     }
 
     function renderRequestedVersion(version, downloadUrl, notes) {
-      let html = `
+      let content = `
         <div class="text-center">
-          <div class="version-badge"><i class="fas fa-tag"></i> نسخه ${version}</div>
+          <div class="version-badge">
+            <i class="fas fa-tag"></i>
+            نسخه ${version}
+          </div>
         </div>
+        
         <div class="alert alert-success">
-          <i class="fas fa-check-circle"></i> در حال هدایت به دانلود نسخه درخواستی...
+          <i class="fas fa-check-circle"></i>
+          در حال هدایت به دانلود نسخه درخواستی...
         </div>
+        
         <div class="text-center" style="margin-top: 1rem;">
           <a href="${downloadUrl}" class="download-btn" download>
-            <i class="fas fa-download"></i> دانلود مستقیم نسخه ${version}
+            <i class="fas fa-download"></i>
+            دانلود مستقیم نسخه ${version}
           </a>
         </div>
       `;
 
       if (notes) {
-        html += `
-          <div class="accordion" style="margin-bottom:1rem;">
+        content += `
+          <div class="accordion">
             <div class="accordion-item">
               <div class="accordion-header" onclick="toggleAccordion(this)">
                 <span class="accordion-title">
-                  <i class="fas fa-clipboard-list"></i> مشاهده تغییرات نسخه ${version}
+                  <i class="fas fa-clipboard-list"></i>
+                  مشاهده تغییرات نسخه ${version}
                 </span>
                 <span class="accordion-icon"><i class="fas fa-chevron-down"></i></span>
               </div>
@@ -579,11 +573,7 @@
         `;
       }
 
-      document.getElementById("content").innerHTML = html;
-
-      setTimeout(() => {
-        window.location.href = downloadUrl;
-      }, 3500);
+      document.getElementById("content").innerHTML = content;
     }
 
     function renderReleaseInfo(version, downloadUrl, notes, allReleases) {
@@ -597,23 +587,36 @@
           >
         </div>
         <div class="dropdown">
-          <button class="dropdown-btn" id="dropdownBtn" aria-haspopup="listbox" aria-expanded="false" aria-label="انتخاب نسخه">
+          <button
+            class="dropdown-btn"
+            id="dropdownBtn"
+            aria-haspopup="listbox"
+            aria-expanded="false"
+            aria-label="انتخاب نسخه"
+          >
             انتخاب نسخه <i class="fas fa-caret-down"></i>
           </button>
-          <div class="dropdown-content" id="dropdownContent" role="listbox" tabindex="-1" aria-labelledby="dropdownBtn">
+          <div
+            class="dropdown-content"
+            id="dropdownContent"
+            role="listbox"
+            tabindex="-1"
+            aria-labelledby="dropdownBtn"
+          >
             ${allReleases
-              .filter(r => !r.prerelease)
-              .map(
-                (release) => {
-                  const cleanTag = release.tag_name;
-                  const date = new Date(release.published_at).toLocaleDateString("fa-IR", {
+              .filter((r) => !r.prerelease)
+              .map((release) => {
+                const cleanTag = release.tag_name;
+                const date = new Date(release.published_at).toLocaleDateString(
+                  "fa-IR",
+                  {
                     year: "numeric",
                     month: "2-digit",
                     day: "2-digit",
-                  });
-                  return `<a href="?version=${cleanTag}" role="option" tabindex="0">${cleanTag} <span style="float:left; font-size:0.8rem; color:#888;">${date}</span></a>`;
-                }
-              )
+                  }
+                );
+                return `<a href="?version=${cleanTag}" role="option" tabindex="0">${cleanTag} <span style="float:left; font-size:0.8rem; color:#888;">${date}</span></a>`;
+              })
               .join("")}
           </div>
         </div>
@@ -622,14 +625,14 @@
       if (notes) {
         html += `
           <div class="accordion" style="margin-bottom:1rem;">
-            <div class="accordion-item active">
+            <div class="accordion-item">
               <div class="accordion-header" onclick="toggleAccordion(this)">
                 <span class="accordion-title">
                   <i class="fas fa-clipboard-list"></i> تغییرات نسخه ${version}
                 </span>
-                <span class="accordion-icon"><i class="fas fa-chevron-up"></i></span>
+                <span class="accordion-icon"><i class="fas fa-chevron-down"></i></span>
               </div>
-              <div class="accordion-content" style="max-height: 500px;">
+              <div class="accordion-content">
                 <div class="accordion-body">${notes}</div>
               </div>
             </div>
@@ -683,17 +686,20 @@
       });
     }
 
+    // آکاردئون باز و بسته شدن
     function toggleAccordion(header) {
       const item = header.parentElement;
       const isActive = item.classList.contains("active");
       if (isActive) {
         item.classList.remove("active");
       } else {
+        // اگر بخوای فقط یک آکاردئون باز باشه، این خط را فعال کن:
+        // document.querySelectorAll(".accordion-item.active").forEach((el) => el.classList.remove("active"));
         item.classList.add("active");
       }
     }
 
-    // شروع کار
+    // شروع اجرای برنامه
     fetchReleases();
   </script>
 </body>
